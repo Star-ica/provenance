@@ -9,246 +9,91 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.4/ethers.umd.min.js"></script>
 <style>
-/* ============ TOKENS ============ */
 :root{
-  --ink:#14171F;
-  --ink-panel:#1B1F29;
-  --ink-panel-2:#20242F;
-  --line:#333846;
-  --paper:#EDE7D9;
-  --paper-2:#F6F2E8;
-  --seal:#A63E49;
-  --seal-hi:#C24C57;
-  --verified:#4F9270;
-  --verified-dim:#2C4438;
-  --pending:#C79A4B;
-  --pending-dim:#463A25;
-  --rejected:#B5555A;
-  --text-hi:#F1EEE6;
-  --text-lo:#9AA0AC;
-  --text-faint:#666C7A;
-  --shadow: 0 20px 60px rgba(0,0,0,0.45);
-  --radius: 3px;
-  --font-display:'Fraunces', serif;
-  --font-ui:'Space Grotesk', sans-serif;
-  --font-mono:'IBM Plex Mono', monospace;
+  --ink:#14171F;--ink-panel:#1B1F29;--ink-panel-2:#20242F;--line:#333846;
+  --paper:#EDE7D9;--seal:#A63E49;--seal-hi:#C24C57;
+  --verified:#4F9270;--pending:#C79A4B;--rejected:#B5555A;
+  --text-hi:#F1EEE6;--text-lo:#9AA0AC;--text-faint:#666C7A;
+  --shadow:0 20px 60px rgba(0,0,0,0.45);--radius:3px;
+  --font-display:'Fraunces',serif;--font-ui:'Space Grotesk',sans-serif;--font-mono:'IBM Plex Mono',monospace;
 }
-:root[data-theme="light"]{
-  --ink:#EDE7D9;
-  --ink-panel:#F8F5EC;
-  --ink-panel-2:#FFFDF8;
-  --line:#D9D2BE;
-  --text-hi:#191B22;
-  --text-lo:#5B5647;
-  --text-faint:#8B8570;
-  --shadow: 0 20px 50px rgba(30,26,15,0.12);
-}
-@media (prefers-color-scheme: light){
-  :root:not([data-theme="dark"]){
-    --ink:#EDE7D9;
-    --ink-panel:#F8F5EC;
-    --ink-panel-2:#FFFDF8;
-    --line:#D9D2BE;
-    --text-hi:#191B22;
-    --text-lo:#5B5647;
-    --text-faint:#8B8570;
-    --shadow: 0 20px 50px rgba(30,26,15,0.12);
-  }
-}
-
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;}
-body{
-  background:var(--ink);
-  color:var(--text-hi);
-  font-family:var(--font-ui);
-  font-size:16px;
-  line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  min-height:100vh;
-}
-a{color:inherit;text-decoration:none;}
-button{font-family:inherit;cursor:pointer;}
-img{max-width:100%;display:block;}
+:root[data-theme="light"]{--ink:#EDE7D9;--ink-panel:#F8F5EC;--ink-panel-2:#FFFDF8;--line:#D9D2BE;--text-hi:#191B22;--text-lo:#5B5647;--text-faint:#8B8570;--shadow:0 20px 50px rgba(30,26,15,0.12);}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--ink:#EDE7D9;--ink-panel:#F8F5EC;--ink-panel-2:#FFFDF8;--line:#D9D2BE;--text-hi:#191B22;--text-lo:#5B5647;--text-faint:#8B8570;--shadow:0 20px 50px rgba(30,26,15,0.12);}}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+body{background:var(--ink);color:var(--text-hi);font-family:var(--font-ui);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh;}
+a{color:inherit;text-decoration:none;}button{font-family:inherit;cursor:pointer;}img{max-width:100%;display:block;}
 .wrap{max-width:1180px;margin:0 auto;padding:0 32px;}
-@media (max-width:720px){.wrap{padding:0 18px;}}
-
+@media(max-width:720px){.wrap{padding:0 18px;}}
 ::selection{background:var(--seal);color:#fff;}
 
-/* ============ NAV ============ */
-header.topnav{
-  position:sticky;top:0;z-index:40;
-  background:color-mix(in srgb, var(--ink) 88%, transparent);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line);
-}
-.nav-inner{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:18px 0;
-}
-.wordmark{
-  font-family:var(--font-display);
-  font-size:22px;
-  font-weight:600;
-  letter-spacing:0.2px;
-  display:flex;align-items:center;gap:10px;
-}
-.wordmark .seal-dot{
-  width:9px;height:9px;border-radius:50%;
-  background:var(--seal);
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--seal) 25%, transparent);
-}
+/* NAV */
+header.topnav{position:sticky;top:0;z-index:40;background:color-mix(in srgb,var(--ink) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:18px 0;}
+.wordmark{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:0.2px;display:flex;align-items:center;gap:10px;}
+.wordmark .seal-dot{width:9px;height:9px;border-radius:50%;background:var(--seal);box-shadow:0 0 0 3px color-mix(in srgb,var(--seal) 25%,transparent);}
 nav.links{display:flex;gap:28px;align-items:center;}
-nav.links a{
-  font-size:14.5px;color:var(--text-lo);
-  padding:6px 2px;border-bottom:1px solid transparent;
-  transition:color .15s ease, border-color .15s ease;
-}
-nav.links a:hover, nav.links a.active{color:var(--text-hi);border-color:var(--seal);}
+nav.links a{font-size:14.5px;color:var(--text-lo);padding:6px 2px;border-bottom:1px solid transparent;transition:color .15s,border-color .15s;}
+nav.links a:hover,nav.links a.active{color:var(--text-hi);border-color:var(--seal);}
 .nav-right{display:flex;align-items:center;gap:14px;}
-.btn{
-  border:1px solid var(--line);
-  background:transparent;
-  color:var(--text-hi);
-  padding:9px 18px;
-  border-radius:var(--radius);
-  font-size:14px;font-weight:500;
-  transition:border-color .15s ease, background .15s ease, transform .1s ease;
-}
-.btn:hover{border-color:var(--text-lo);}
-.btn:active{transform:translateY(1px);}
-.btn-primary{
-  background:var(--seal);border-color:var(--seal);color:#fff;
-}
+.btn{border:1px solid var(--line);background:transparent;color:var(--text-hi);padding:9px 18px;border-radius:var(--radius);font-size:14px;font-weight:500;transition:border-color .15s,background .15s,transform .1s;}
+.btn:hover{border-color:var(--text-lo);}.btn:active{transform:translateY(1px);}
+.btn-primary{background:var(--seal);border-color:var(--seal);color:#fff;}
 .btn-primary:hover{background:var(--seal-hi);border-color:var(--seal-hi);}
 .btn-ghost{border-color:transparent;color:var(--text-lo);padding:9px 10px;}
 .btn-small{padding:6px 13px;font-size:13px;}
-.wallet-pill{
-  font-family:var(--font-mono);font-size:13px;
-  background:var(--ink-panel-2);border:1px solid var(--line);
-  padding:8px 14px;border-radius:20px;color:var(--text-hi);
-  display:flex;align-items:center;gap:8px;
-}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.wallet-pill{font-family:var(--font-mono);font-size:13px;background:var(--ink-panel-2);border:1px solid var(--line);padding:8px 14px;border-radius:20px;color:var(--text-hi);display:flex;align-items:center;gap:8px;cursor:pointer;}
 .wallet-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--verified);}
-.menu-toggle{display:none;background:none;border:none;color:var(--text-hi);font-size:22px;}
-@media (max-width:820px){
-  nav.links{display:none;}
-  .menu-toggle{display:block;}
-}
 
-/* ============ HERO ============ */
-.hero{
-  padding:100px 0 90px;
-  position:relative;
-  overflow:hidden;
-}
-.hero-grid{
-  display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:center;
-}
-@media (max-width:920px){.hero-grid{grid-template-columns:1fr;gap:56px;}}
-.eyebrow-line{
-  display:flex;align-items:center;gap:10px;margin-bottom:26px;color:var(--text-lo);font-size:13.5px;
-}
+/* HERO */
+.hero{padding:100px 0 90px;overflow:hidden;}
+.hero-grid{display:grid;grid-template-columns:1.15fr 0.85fr;gap:64px;align-items:center;}
+@media(max-width:920px){.hero-grid{grid-template-columns:1fr;gap:56px;}}
+.eyebrow-line{display:flex;align-items:center;gap:10px;margin-bottom:26px;color:var(--text-lo);font-size:13.5px;}
 .eyebrow-line .rule{width:34px;height:1px;background:var(--line);}
-h1.hero-head{
-  font-family:var(--font-display);
-  font-weight:600;
-  font-size:clamp(38px, 5.4vw, 62px);
-  line-height:1.04;
-  margin:0 0 26px;
-  letter-spacing:-0.5px;
-}
+h1.hero-head{font-family:var(--font-display);font-weight:600;font-size:clamp(38px,5.4vw,62px);line-height:1.04;margin:0 0 26px;letter-spacing:-0.5px;}
 h1.hero-head em{font-style:italic;color:var(--seal);font-weight:500;}
-.hero p.lede{
-  font-size:18px;color:var(--text-lo);max-width:480px;margin:0 0 36px;line-height:1.6;
-}
+.hero p.lede{font-size:18px;color:var(--text-lo);max-width:480px;margin:0 0 36px;line-height:1.6;}
 .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;}
 .hero-stats{display:flex;gap:40px;margin-top:56px;}
-.stat b{
-  display:block;font-family:var(--font-mono);font-size:26px;color:var(--text-hi);
-}
+.stat b{display:block;font-family:var(--font-mono);font-size:26px;color:var(--text-hi);}
 .stat span{font-size:13px;color:var(--text-faint);}
-
-/* the certificate visual — the one bold element */
-.cert{
-  background:var(--paper, var(--ink-panel-2));
-  color:#1c1a12;
-  border:1px solid var(--line);
-  border-radius:2px;
-  padding:34px 30px 28px;
-  position:relative;
-  box-shadow:var(--shadow);
-  transform:rotate(1.4deg);
-  font-family:var(--font-mono);
-}
-:root[data-theme="dark"] .cert, :root:not([data-theme="light"]) .cert{
-  background:#EDE7D9;color:#1c1a12;
-}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cert{background:#EDE7D9;color:#1c1a12;}}
+.cert{background:#EDE7D9;color:#1c1a12;border:1px solid var(--line);border-radius:2px;padding:34px 30px 28px;position:relative;box-shadow:var(--shadow);transform:rotate(1.4deg);font-family:var(--font-mono);}
 .cert-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px dashed #b7ae94;padding-bottom:16px;margin-bottom:16px;}
-.cert-top .k{font-size:10.5px;letter-spacing:1px;color:#7a725c;}
-.cert-top .v{font-size:14px;margin-top:3px;}
-.cert-seal{
-  width:76px;height:76px;border-radius:50%;
-  border:2px solid var(--seal);
-  display:flex;align-items:center;justify-content:center;
-  transform:rotate(-8deg);
-  font-family:var(--font-display);font-size:11px;color:var(--seal);
-  text-align:center;line-height:1.15;font-weight:600;
-  flex-shrink:0;margin-left:16px;
-}
+.cert-top .k{font-size:10.5px;letter-spacing:1px;color:#7a725c;}.cert-top .v{font-size:14px;margin-top:3px;}
+.cert-seal{width:76px;height:76px;border-radius:50%;border:2px solid var(--seal);display:flex;align-items:center;justify-content:center;transform:rotate(-8deg);font-family:var(--font-display);font-size:11px;color:var(--seal);text-align:center;line-height:1.15;font-weight:600;flex-shrink:0;margin-left:16px;}
 .cert-row{display:flex;justify-content:space-between;font-size:13px;padding:9px 0;border-bottom:1px solid #ddd5bd;}
 .cert-row:last-of-type{border-bottom:none;}
 .cert-row .k{color:#7a725c;}
 .cert-hash{font-size:10.5px;color:#8a8168;margin-top:14px;word-break:break-all;}
 
-/* ============ SECTIONS ============ */
+/* SECTIONS */
 section{padding:84px 0;}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:44px;gap:24px;flex-wrap:wrap;}
-h2.section-title{
-  font-family:var(--font-display);font-weight:600;font-size:clamp(26px,3vw,36px);margin:0;letter-spacing:-0.3px;
-}
+h2.section-title{font-family:var(--font-display);font-weight:600;font-size:clamp(26px,3vw,36px);margin:0;letter-spacing:-0.3px;}
 p.section-sub{color:var(--text-lo);font-size:15px;max-width:460px;margin:8px 0 0;}
-
 .how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
-@media (max-width:780px){.how-grid{grid-template-columns:1fr;}}
+@media(max-width:780px){.how-grid{grid-template-columns:1fr;}}
 .how-cell{background:var(--ink);padding:34px 30px;}
 .how-cell .idx{font-family:var(--font-mono);font-size:13px;color:var(--seal);margin-bottom:18px;display:block;}
 .how-cell h3{font-family:var(--font-display);font-size:20px;margin:0 0 10px;font-weight:600;}
 .how-cell p{color:var(--text-lo);font-size:14.5px;margin:0;line-height:1.6;}
 
-/* card grid for listings */
+/* CARDS */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
-@media (max-width:920px){.grid{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:620px){.grid{grid-template-columns:1fr;}}
-
-.piece-card{
-  background:var(--ink-panel);border:1px solid var(--line);
-  display:flex;flex-direction:column;overflow:hidden;
-  transition:border-color .15s ease;
-}
+@media(max-width:920px){.grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:620px){.grid{grid-template-columns:1fr;}}
+.piece-card{background:var(--ink-panel);border:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;transition:border-color .15s;cursor:pointer;}
 .piece-card:hover{border-color:var(--text-faint);}
-.piece-media{
-  aspect-ratio:1/1;background:var(--ink-panel-2);
-  display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-  border-bottom:1px solid var(--line);
-}
+.piece-media{aspect-ratio:1/1;background:var(--ink-panel-2);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-bottom:1px solid var(--line);}
 .piece-media img{width:100%;height:100%;object-fit:cover;}
-.status-tag{
-  position:absolute;top:10px;left:10px;
-  font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.4px;
-  padding:5px 9px;border-radius:20px;
-  display:flex;align-items:center;gap:6px;
-  background:rgba(20,23,31,0.82);color:#fff;border:1px solid rgba(255,255,255,0.15);
-}
+.status-tag{position:absolute;top:10px;left:10px;font-family:var(--font-mono);font-size:10.5px;letter-spacing:0.4px;padding:5px 9px;border-radius:20px;display:flex;align-items:center;gap:6px;background:rgba(20,23,31,0.82);color:#fff;border:1px solid rgba(255,255,255,0.15);}
 .status-tag .dot{width:6px;height:6px;border-radius:50%;}
 .status-verified .dot{background:var(--verified);}
 .status-pending .dot{background:var(--pending);}
 .status-rejected .dot{background:var(--rejected);}
 .status-live .dot{background:var(--seal);}
 .status-ended .dot{background:var(--text-faint);}
-
 .piece-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:12px;flex:1;}
 .piece-title{font-family:var(--font-display);font-size:18px;font-weight:600;margin:0;}
 .piece-artist{font-size:13px;color:var(--text-lo);margin:0;}
@@ -257,114 +102,80 @@ p.section-sub{color:var(--text-lo);font-size:15px;max-width:460px;margin:8px 0 0
 .piece-meta .v{font-family:var(--font-mono);font-size:15px;margin-top:2px;}
 .piece-timer{font-family:var(--font-mono);font-size:11.5px;color:var(--pending);}
 
-/* ============ FORM (create page) ============ */
+/* FORM */
 .form-shell{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
-@media (max-width:880px){.form-shell{grid-template-columns:1fr;}}
+@media(max-width:880px){.form-shell{grid-template-columns:1fr;}}
 .field{margin-bottom:20px;}
 .field label{display:block;font-size:13px;color:var(--text-lo);margin-bottom:8px;}
 .field .hint{font-size:12px;color:var(--text-faint);margin-top:6px;}
-input[type=text], input[type=number], input[type=url], textarea, select{
-  width:100%;background:var(--ink-panel);border:1px solid var(--line);
-  color:var(--text-hi);padding:12px 14px;border-radius:var(--radius);font-size:14.5px;font-family:var(--font-ui);
-}
+input[type=text],input[type=number],input[type=url],textarea,select{width:100%;background:var(--ink-panel);border:1px solid var(--line);color:var(--text-hi);padding:12px 14px;border-radius:var(--radius);font-size:14.5px;font-family:var(--font-ui);}
 textarea{min-height:100px;resize:vertical;}
-input:focus, textarea:focus, select:focus{outline:2px solid var(--seal);outline-offset:1px;border-color:var(--seal);}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--seal);outline-offset:1px;border-color:var(--seal);}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-.upload-box{
-  border:1px dashed var(--line);border-radius:var(--radius);
-  padding:26px;text-align:center;color:var(--text-lo);font-size:13.5px;
-  cursor:pointer;position:relative;background:var(--ink-panel);
-}
+.upload-box{border:1px dashed var(--line);border-radius:var(--radius);padding:40px 26px;text-align:center;color:var(--text-lo);font-size:13.5px;cursor:pointer;position:relative;background:var(--ink-panel);transition:border-color .15s;}
+.upload-box:hover{border-color:var(--seal);}
 .upload-box.has-img{padding:0;overflow:hidden;aspect-ratio:1/1;}
 .upload-box.has-img img{width:100%;height:100%;object-fit:cover;}
-.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
-.preview-note{font-size:12px;color:var(--text-faint);margin-top:10px;}
-
-.form-summary{
-  background:var(--ink-panel);border:1px solid var(--line);padding:26px;position:sticky;top:100px;
-}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:28px;margin-bottom:10px;opacity:.5;}
+.form-summary{background:var(--ink-panel);border:1px solid var(--line);padding:26px;position:sticky;top:100px;}
 .form-summary h3{font-family:var(--font-display);font-size:19px;margin:0 0 16px;}
 .summary-row{display:flex;justify-content:space-between;font-size:13.5px;padding:9px 0;border-bottom:1px solid var(--line);}
 .summary-row:last-of-type{border-bottom:none;}
 .summary-row .k{color:var(--text-lo);}
 
-/* ============ MODAL / BID PANEL ============ */
-.overlay{position:fixed;inset:0;background:rgba(10,11,15,0.7);display:none;align-items:center;justify-content:center;z-index:80;padding:20px;}
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(10,11,15,0.75);display:none;align-items:center;justify-content:center;z-index:80;padding:20px;}
 .overlay.open{display:flex;}
-.modal{
-  background:var(--ink-panel);border:1px solid var(--line);max-width:480px;width:100%;
-  padding:28px;max-height:88vh;overflow:auto;
-}
+.modal{background:var(--ink-panel);border:1px solid var(--line);max-width:480px;width:100%;padding:28px;max-height:88vh;overflow:auto;position:relative;}
 .modal h3{font-family:var(--font-display);font-size:22px;margin:0 0 4px;}
-.modal .close{position:absolute;}
 .modal-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px;}
-.icon-btn{background:none;border:none;color:var(--text-lo);font-size:20px;}
+.icon-btn{background:none;border:none;color:var(--text-lo);font-size:20px;cursor:pointer;}
 .bid-history{max-height:160px;overflow:auto;margin:14px 0;border:1px solid var(--line);}
 .bid-row{display:flex;justify-content:space-between;font-size:13px;padding:9px 12px;border-bottom:1px solid var(--line);font-family:var(--font-mono);}
 .bid-row:last-child{border-bottom:none;}
 
-/* ============ DASHBOARD ============ */
+/* DASHBOARD */
 .tabbar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:36px;}
-.tabbar button{
-  background:none;border:none;color:var(--text-lo);padding:12px 4px;margin-right:28px;font-size:14.5px;
-  border-bottom:2px solid transparent;
-}
+.tabbar button{background:none;border:none;color:var(--text-lo);padding:12px 4px;margin-right:28px;font-size:14.5px;border-bottom:2px solid transparent;}
 .tabbar button.active{color:var(--text-hi);border-color:var(--seal);}
 .dash-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:44px;}
-@media (max-width:780px){.dash-stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:780px){.dash-stats{grid-template-columns:repeat(2,1fr);}}
 .dash-stat{background:var(--ink);padding:22px 24px;}
 .dash-stat b{display:block;font-family:var(--font-mono);font-size:24px;}
 .dash-stat span{font-size:12.5px;color:var(--text-faint);}
 .table{width:100%;border-collapse:collapse;font-size:13.5px;}
-.table th{
-  text-align:left;color:var(--text-faint);font-weight:500;font-size:11.5px;letter-spacing:0.3px;
-  padding:10px 14px;border-bottom:1px solid var(--line);
-}
+.table th{text-align:left;color:var(--text-faint);font-weight:500;font-size:11.5px;letter-spacing:0.3px;padding:10px 14px;border-bottom:1px solid var(--line);}
 .table td{padding:14px;border-bottom:1px solid var(--line);vertical-align:middle;}
 .table tr:last-child td{border-bottom:none;}
 .table .thumb{width:42px;height:42px;object-fit:cover;border:1px solid var(--line);}
-.pill{
-  font-family:var(--font-mono);font-size:10.5px;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;
-}
+.pill{font-family:var(--font-mono);font-size:10.5px;padding:4px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;}
 .pill .dot{width:6px;height:6px;border-radius:50%;}
 .empty-state{padding:60px 20px;text-align:center;color:var(--text-lo);border:1px dashed var(--line);}
 .empty-state h4{font-family:var(--font-display);font-size:19px;color:var(--text-hi);margin:0 0 8px;}
-
 .auditor-panel{background:var(--ink-panel);border:1px solid var(--line);padding:22px;margin-top:40px;}
 .auditor-panel h3{font-family:var(--font-display);margin:0 0 6px;font-size:19px;}
 .auditor-panel p{color:var(--text-lo);font-size:13.5px;margin:0 0 18px;}
 .audit-item{display:flex;align-items:center;gap:14px;padding:12px 0;border-top:1px solid var(--line);}
 .audit-item img{width:46px;height:46px;object-fit:cover;border:1px solid var(--line);}
-.audit-item .info{flex:1;}
-.audit-item .info b{font-size:14px;display:block;}
+.audit-item .info{flex:1;}.audit-item .info b{font-size:14px;display:block;}
 .audit-item .info span{font-size:12px;color:var(--text-faint);}
 .audit-actions{display:flex;gap:8px;}
-
 footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
 .footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
 .footer-inner p{color:var(--text-faint);font-size:12.5px;margin:0;}
-
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:10px;}
-.toast{
-  background:var(--ink-panel-2);border:1px solid var(--line);border-left:3px solid var(--seal);
-  padding:13px 18px;font-size:13.5px;box-shadow:var(--shadow);min-width:240px;
-  animation:slidein .2s ease;
-}
+.toast{background:var(--ink-panel-2);border:1px solid var(--line);border-left:3px solid var(--seal);padding:13px 18px;font-size:13.5px;box-shadow:var(--shadow);min-width:240px;animation:slidein .2s ease;}
 @keyframes slidein{from{transform:translateX(12px);opacity:0;}to{transform:translateX(0);opacity:1;}}
-
-.page{display:none;}
-.page.active{display:block;}
-
+.page{display:none;}.page.active{display:block;}
 .filter-bar{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;}
-.chip{
-  border:1px solid var(--line);background:transparent;color:var(--text-lo);
-  padding:8px 15px;border-radius:20px;font-size:13px;
-}
+.chip{border:1px solid var(--line);background:transparent;color:var(--text-lo);padding:8px 15px;border-radius:20px;font-size:13px;cursor:pointer;}
 .chip.active{background:var(--text-hi);color:var(--ink);border-color:var(--text-hi);}
-
+code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;border-radius:3px;font-size:0.92em;}
 .connect-note{font-size:12px;color:var(--text-faint);margin-top:10px;}
-
-@media (prefers-reduced-motion: reduce){*{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}}
+.progress-bar{height:4px;background:var(--line);border-radius:4px;overflow:hidden;margin-top:8px;}
+.progress-bar-fill{height:100%;width:0%;background:var(--seal);transition:width .15s;}
+@media(prefers-reduced-motion:reduce){*{animation-duration:0.001ms !important;transition-duration:0.001ms !important;}}
 </style>
 </head>
 <body>
@@ -379,22 +190,22 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
       <a href="#/dashboard" data-route="/dashboard">Dashboard</a>
     </nav>
     <div class="nav-right">
-      <button class="btn btn-ghost" id="settingsToggle" title="Chain & IPFS settings" aria-label="Settings">⚙</button>
-      <button class="btn btn-ghost" id="themeToggle" title="Toggle theme" aria-label="Toggle theme">◐</button>
+      <button class="btn btn-ghost" id="themeToggle" title="Toggle theme">◐</button>
       <div id="walletArea"></div>
     </div>
   </div>
 </header>
 
-<!-- ================= LANDING ================= -->
 <main>
+
+<!-- HOME -->
 <div id="page-home" class="page">
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
         <div class="eyebrow-line"><span class="rule"></span>Independent audit before every sale</div>
         <h1 class="hero-head">Provenance you can<br><em>verify</em>, not just claim.</h1>
-        <p class="lede">List your digital work for independent authenticity review. Once verified, it goes to open bidding — highest offer wins, funds and files settle on-chain.</p>
+        <p class="lede">Upload your work, we mint the NFT. Then independent reviewers verify authenticity before open bidding begins — every step settled on-chain.</p>
         <div class="hero-ctas">
           <a href="#/create" class="btn btn-primary">List a work for audit</a>
           <a href="#/audit" class="btn">View the audit floor</a>
@@ -412,11 +223,11 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
             <div class="cert-seal">VERIFIED<br>ORIGINAL</div>
           </div>
           <div class="cert-row"><span class="k">Work</span><span>"Glass Meridian"</span></div>
-          <div class="cert-row"><span class="k">Artist</span><span>0x4a…9f2c</span></div>
-          <div class="cert-row"><span class="k">Auditor</span><span>Provenance Reviewer #3</span></div>
+          <div class="cert-row"><span class="k">Token ID</span><span>#0 · ProvenanceNFT</span></div>
+          <div class="cert-row"><span class="k">Auditor</span><span>0x7e…3f1a</span></div>
           <div class="cert-row"><span class="k">Result</span><span>Authentic — original mint</span></div>
           <div class="cert-row"><span class="k">Reserve</span><span>0.85 ETH</span></div>
-          <div class="cert-hash">token_hash: 0xe19f...c02b7a41 — immutable once listed</div>
+          <div class="cert-hash">ipfs://bafybe…c02b — metadata immutable once minted</div>
         </div>
       </div>
     </div>
@@ -426,14 +237,14 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
     <div class="section-head">
       <div>
         <h2 class="section-title">How the audit floor works</h2>
-        <p class="section-sub">Three stages stand between a mint and a sale. None can be skipped.</p>
+        <p class="section-sub">Three stages stand between an upload and a sale. None can be skipped.</p>
       </div>
     </div>
     <div class="how-grid">
       <div class="how-cell">
         <span class="idx">01 — Submit</span>
-        <h3>List the work</h3>
-        <p>Creator submits the file, edition details and a reserve price. The listing is locked pending review — it cannot be edited once audit begins.</p>
+        <h3>Upload your work</h3>
+        <p>Creator uploads the image and fills in the details. We pin it to IPFS and mint a fresh NFT directly into escrow — you never need an external contract.</p>
       </div>
       <div class="how-cell">
         <span class="idx">02 — Review</span>
@@ -460,7 +271,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
   </section>
 </div>
 
-<!-- ================= AUDIT FLOOR (LIST FOR AUDIT / BROWSE+BID) ================= -->
+<!-- AUDIT FLOOR -->
 <div id="page-audit" class="page">
   <section class="wrap" style="padding-top:56px;">
     <div class="section-head">
@@ -477,53 +288,39 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
       <button class="chip" data-filter="ended">Ended</button>
       <button class="chip" data-filter="rejected">Rejected</button>
     </div>
+    <div id="loadingAudit" style="color:var(--text-faint);font-size:14px;padding:20px 0;"></div>
     <div class="grid" id="auditGrid"></div>
   </section>
 </div>
 
-<!-- ================= CREATE / LIST ================= -->
+<!-- CREATE / LIST -->
 <div id="page-create" class="page">
   <section class="wrap" style="padding-top:56px;">
     <div class="section-head">
       <div>
         <h2 class="section-title">List a work for audit</h2>
-        <p class="section-sub">The listing locks once submitted. Make sure details are final.</p>
+        <p class="section-sub">Upload your image — we pin it to IPFS and mint the NFT when you submit.</p>
       </div>
     </div>
-    <div id="chainStatusBanner" class="connect-note" style="margin-bottom:24px;"></div>
     <form id="createForm" class="form-shell">
       <div>
         <div class="field">
-          <label for="f-image">Artwork file</label>
+          <label>Artwork file</label>
           <div class="upload-box" id="uploadBox">
-            <span id="uploadLabel">Click to choose an image — PNG, JPG, or GIF</span>
+            <div class="upload-icon">🖼</div>
+            <div>Click to choose an image</div>
+            <div style="font-size:12px;color:var(--text-faint);margin-top:4px;">PNG, JPG, GIF — pinned to IPFS on submit</div>
             <input type="file" id="f-image" accept="image/*">
           </div>
-          <div class="preview-note" id="uploadNote">Stored locally for this demo — connect a Pinata key in Settings to pin to real IPFS.</div>
         </div>
-        <div class="field" id="nftFields" style="display:none;background:var(--ink-panel);border:1px solid var(--line);padding:16px;">
-          <label style="margin-bottom:2px;">Onchain source</label>
-          <p style="font-size:12px;color:var(--text-faint);margin:0 0 14px;">The contract audits and auctions an <em>already-minted</em> ERC-721 — mint it on your own NFT contract first, then link it here.</p>
-          <div class="row2">
-            <div class="field" style="margin-bottom:12px;">
-              <label for="f-nftcontract">NFT contract address</label>
-              <input type="text" id="f-nftcontract" placeholder="0x…">
-            </div>
-            <div class="field" style="margin-bottom:12px;">
-              <label for="f-tokenid">Token ID</label>
-              <input type="number" id="f-tokenid" min="0" placeholder="0">
-            </div>
-          </div>
-          <button type="button" class="btn btn-small" id="approveBtn">Approve marketplace for this token</button>
-          <div class="hint" id="approveStatus"></div>
-        </div>
+
         <div class="field">
           <label for="f-title">Title</label>
           <input type="text" id="f-title" placeholder="e.g. Glass Meridian" required>
         </div>
         <div class="field">
           <label for="f-desc">Description</label>
-          <textarea id="f-desc" placeholder="Medium, edition size, story behind the piece…" required></textarea>
+          <textarea id="f-desc" placeholder="Medium, story behind the piece, edition size…" required></textarea>
         </div>
         <div class="row2">
           <div class="field">
@@ -545,34 +342,53 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
         <div class="row2">
           <div class="field">
             <label for="f-reserve">Reserve price (ETH)</label>
-            <input type="number" id="f-reserve" min="0.01" step="0.01" placeholder="0.50" required>
+            <input type="number" id="f-reserve" min="0.001" step="0.001" placeholder="0.50" required>
           </div>
           <div class="field">
             <label for="f-duration">Auction length once verified</label>
             <select id="f-duration">
-              <option value="24">24 hours</option>
-              <option value="48" selected>48 hours</option>
-              <option value="72">72 hours</option>
-              <option value="168">7 days</option>
+              <option value="3600">1 hour (testing)</option>
+              <option value="86400">24 hours</option>
+              <option value="172800" selected>48 hours</option>
+              <option value="259200">72 hours</option>
+              <option value="604800">7 days</option>
             </select>
           </div>
         </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-colname">Collection name <span style="color:var(--text-faint)">(first listing only)</span></label>
+            <input type="text" id="f-colname" placeholder="e.g. Jane's Works" required>
+          </div>
+          <div class="field">
+            <label for="f-colsymbol">Collection symbol</label>
+            <input type="text" id="f-colsymbol" placeholder="e.g. JANE" maxlength="8" required>
+          </div>
+        </div>
       </div>
+
       <div class="form-summary">
         <h3>Before you submit</h3>
+        <div class="summary-row"><span class="k">NFT minting</span><span>Done by the platform on submit</span></div>
         <div class="summary-row"><span class="k">Status on submit</span><span>Pending audit</span></div>
         <div class="summary-row"><span class="k">Platform fee</span><span>2.5% of final bid</span></div>
         <div class="summary-row"><span class="k">Audit turnaround</span><span>Typically under 24h</span></div>
-        <div class="summary-row"><span class="k">If rejected</span><span>File returned, no fee charged</span></div>
+        <div class="summary-row"><span class="k">If rejected</span><span>NFT returned, no fee</span></div>
         <div class="summary-row"><span class="k">Wallet</span><span id="summaryWallet">Not connected</span></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:20px;">Submit for audit</button>
-        <div class="connect-note">You'll be asked to connect a wallet if you haven't already — the listing is tied to your address.</div>
+
+        <div id="uploadProgress" style="display:none;margin-top:14px;">
+          <div style="font-size:12.5px;color:var(--text-lo);" id="uploadProgressLabel">Pinning image…</div>
+          <div class="progress-bar"><div class="progress-bar-fill" id="uploadProgressFill"></div></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;margin-top:20px;">Submit for audit</button>
+        <div class="connect-note">Submitting mints the NFT into escrow and calls <code>listForAudit()</code> on-chain.</div>
       </div>
     </form>
   </section>
 </div>
 
-<!-- ================= DASHBOARD ================= -->
+<!-- DASHBOARD -->
 <div id="page-dashboard" class="page">
   <section class="wrap" style="padding-top:56px;">
     <div class="section-head">
@@ -610,7 +426,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
     <div id="tab-auditor" style="display:none;">
       <div class="auditor-panel">
         <h3>Pending review queue</h3>
-        <p>Demo auditor role — approves or rejects submissions on behalf of the contract's registered auditor.</p>
+        <p>Only wallets registered as an auditor on the contract (<code>auditors(address)</code>) can verify or reject.</p>
         <div id="auditorQueue"></div>
       </div>
     </div>
@@ -621,178 +437,56 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
 <footer>
   <div class="wrap footer-inner">
     <span class="wordmark" style="font-size:16px;"><span class="seal-dot"></span>Provenance</span>
-    <p>Demo interface — bidding and audit state are stored in your browser. Contract source: AuditedAuction.sol</p>
+    <p>Listings, bids and audit status are read live from the deployed contract.</p>
   </div>
 </footer>
 
-<!-- Bid modal -->
+<!-- Bid / piece modal -->
 <div class="overlay" id="bidOverlay">
-  <div class="modal" style="position:relative;">
+  <div class="modal">
     <button class="icon-btn" id="closeModal" style="position:absolute;top:16px;right:16px;">✕</button>
     <div id="modalBody"></div>
-  </div>
-</div>
-
-<!-- Settings modal -->
-<div class="overlay" id="settingsOverlay">
-  <div class="modal" style="position:relative;max-width:440px;">
-    <button class="icon-btn" id="closeSettings" style="position:absolute;top:16px;right:16px;">✕</button>
-    <h3 style="font-family:var(--font-display);font-size:20px;margin:0 0 4px;">Chain & IPFS settings</h3>
-    <p style="font-size:13px;color:var(--text-lo);margin:0 0 20px;">Saved only in this browser — never written into the page's source.</p>
-    <div class="field">
-      <label for="cfgContract">Marketplace contract address</label>
-      <input type="text" id="cfgContract" placeholder="0x… (leave blank to stay in demo mode)">
-      <div class="hint">Deployed <code>AuditedAuction.sol</code> address on the network your wallet is connected to.</div>
-    </div>
-    <div class="field">
-      <label for="cfgPinata">Pinata JWT (for IPFS uploads)</label>
-      <input type="text" id="cfgPinata" placeholder="eyJhbGciOi…">
-      <div class="hint">Create a scoped key at pinata.cloud. Without one, artwork stays local to your browser instead of pinning to IPFS.</div>
-    </div>
-    <button class="btn btn-primary" id="saveSettings" style="width:100%;margin-top:6px;">Save settings</button>
   </div>
 </div>
 
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-/* ======================= STATE ======================= */
-const STORAGE_KEY = 'provenance_state_v1';
-const AUDITOR_ADDR = '0xAUDIT0000000000000000000000000000000R3'; // demo fixed auditor
+/* ===================== HARDCODED CONFIG ===================== */
+const CONTRACT_ADDRESS = '0xfaCeF2B9FFc2e220B4C6Bf4616eF2352C817540c';   // ← AuditedAuction
+const FACTORY_ADDRESS  = '0x2657d67B1B80B5956C180A6fE5cce325ef86d53f';   // ← NFTFactory
+const IPFS_GATEWAY     = 'https://gateway.pinata.cloud/ipfs/';
+const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxZTg0YmJlOS0zOGZkLTQxZDAtYTA3ZS0yOGIyYzQwMjI0MzMiLCJlbWFpbCI6ImplcnlkYW0xNDhAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjU0OTcyMTdkMzM4MGUyMmE5MDZiIiwic2NvcGVkS2V5U2VjcmV0IjoiOTg4NzA4MDc5OTA1NjhiZDgyYmQ4YzEyMjBkYWFmZDk1NzNhMGIxMGJhYzFjNGQ4ZjQ1NzA0OTUwOWEzZDc2NyIsImV4cCI6MTc5ODI3Nzc1OX0.45Q6OvDON7RJE4xcI92p2fMEAVQ1SQYAfcUZkIRdt-I';
 
-function uid(){ return Math.random().toString(36).slice(2,10); }
-function nowTs(){ return Date.now(); }
-function fmtEth(n){ return Number(n).toFixed(2); }
+/* ---- ABI ---- */
+const MARKETPLACE_ABI = [
+  {"inputs":[{"internalType":"string","name":"tokenURI_","type":"string"},{"internalType":"uint256","name":"reservePrice","type":"uint256"},{"internalType":"uint256","name":"auctionDurationSecs","type":"uint256"},{"internalType":"string","name":"collectionName","type":"string"},{"internalType":"string","name":"collectionSymbol","type":"string"}],"name":"listForAudit","outputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"},{"internalType":"bool","name":"approve","type":"bool"},{"internalType":"string","name":"note","type":"string"}],"name":"decideAudit","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"beginAudit","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"startAuction","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"cancelBeforeAuction","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"placeBid","outputs":[],"stateMutability":"payable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"settle","outputs":[],"stateMutability":"nonpayable","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"getListing","outputs":[{"components":[{"internalType":"address","name":"collection","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address payable","name":"creator","type":"address"},{"internalType":"uint256","name":"reservePrice","type":"uint256"},{"internalType":"uint256","name":"minBidIncrementBps","type":"uint256"},{"internalType":"uint256","name":"auctionDuration","type":"uint256"},{"internalType":"string","name":"tokenURI","type":"string"}],"internalType":"struct AuditedAuction.ListingMeta","name":"m","type":"tuple"},{"components":[{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"address","name":"auditor","type":"address"},{"internalType":"string","name":"auditNote","type":"string"},{"internalType":"uint256","name":"startTime","type":"uint256"},{"internalType":"uint256","name":"endTime","type":"uint256"},{"internalType":"address","name":"highestBidder","type":"address"},{"internalType":"uint256","name":"highestBid","type":"uint256"},{"internalType":"bool","name":"settled","type":"bool"}],"internalType":"struct AuditedAuction.AuctionState","name":"s","type":"tuple"}],"stateMutability":"view","type":"function"},
+  {"inputs":[],"name":"nextListingId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"auditors","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"minNextBid","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"listingId","type":"uint256"},{"indexed":true,"internalType":"address","name":"bidder","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BidPlaced","type":"event"},
+  {"inputs":[{"internalType":"address","name":"creator","type":"address"}],"name":"collectionOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+];
+
+/* ===================== HELPERS ===================== */
+function parseErr(e){ return e?.shortMessage || e?.reason || e?.info?.error?.message || e?.message || 'Something went wrong.'; }
 function shortAddr(a){ return a ? a.slice(0,6)+'…'+a.slice(-4) : ''; }
-function placeholderImg(seed){
-  const colors=['#8C2F39','#4F9270','#C79A4B','#3B4A6B','#6B4A8C'];
-  const c = colors[Math.abs(hashCode(seed))%colors.length];
-  return `data:image/svg+xml;utf8,` + encodeURIComponent(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='${c}'/><text x='50%' y='53%' font-family='monospace' font-size='16' fill='white' text-anchor='middle' opacity='0.85'>${seed.slice(0,18)}</text></svg>`
-  );
-}
-function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
+function fmtEth(n){ return Number(n).toFixed(4).replace(/\.?0+$/,''); }
+function nowTs(){ return Date.now(); }
+function addrEq(a,b){ return !!a && !!b && a.toLowerCase()===b.toLowerCase(); }
 
-function defaultState(){
-  const seedTitles = [
-    ['Glass Meridian','Generative',0.85,'verified'],
-    ['Low Tide Archive','Photography',0.4,'live'],
-    ['Kinetic Vellum','3D / Render',1.2,'live'],
-    ['Nine Static Rooms','Mixed media',0.6,'in_audit'],
-    ['Ferrous Bloom','Illustration',0.3,'pending_audit'],
-    ['Signal / Noise','Pixel',0.15,'rejected'],
-    ['The Long Quiet','Photography',0.95,'ended'],
-    ['Reef Ledger #4','Generative',0.55,'verified'],
-  ];
-  const listings = seedTitles.map(([title,cat,reserve,status],i)=>{
-    const id = 'seed'+i;
-    const creator = '0x'+hashCode(title).toString(16).replace('-','').padEnd(6,'0').slice(0,6)+'…c9'+i;
-    const base = {
-      id, title, category:cat, artist:creator, creatorAddress: creator,
-      description:'A study in restraint and repetition, minted as a single edition.',
-      edition:'1 of 1', reserve, image: placeholderImg(title), status,
-      createdAt: nowTs()-i*86400000, bids:[], currentBid:0, currentBidder:null,
-      durationHrs:48, auditedAt:null, auditNote:null, endedAt:null, winner:null,
-    };
-    if(status==='live'||status==='ended'){
-      base.startedAt = nowTs()-3600000*(i+1);
-      base.endTime = status==='ended' ? nowTs()-3600000 : nowTs()+3600000*(20-i*3);
-      base.bids = [
-        {bidder:'0xB1…44e2', amount:reserve, time: base.startedAt+60000},
-        {bidder:'0xC7…09aa', amount: +(reserve*1.3).toFixed(2), time: base.startedAt+400000},
-      ];
-      base.currentBid = base.bids[base.bids.length-1].amount;
-      base.currentBidder = base.bids[base.bids.length-1].bidder;
-      if(status==='ended'){ base.winner = base.currentBidder; base.endedAt = base.endTime; }
-    }
-    if(status==='verified'){ base.auditedAt = nowTs()-1000000; }
-    if(status==='rejected'){ base.auditedAt = nowTs()-1000000; base.auditNote='Metadata does not match declared edition size.'; }
-    return base;
-  });
-  return { wallet:null, listings };
-}
+const CHAIN_STATUS_MAP = ['pending_audit','in_audit','verified','rejected','live','ended','cancelled'];
+const STATUS_LABEL = {pending_audit:'Pending audit',in_audit:'In audit',verified:'Verified · not started',live:'Live bidding',ended:'Ended',rejected:'Rejected',cancelled:'Cancelled'};
+const STATUS_CLASS = {pending_audit:'status-pending',in_audit:'status-pending',verified:'status-verified',live:'status-live',ended:'status-ended',rejected:'status-rejected',cancelled:'status-rejected'};
 
-function loadState(){
-  try{
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) { const s = defaultState(); saveState(s); return s; }
-    return JSON.parse(raw);
-  }catch(e){ const s = defaultState(); saveState(s); return s; }
-}
-function saveState(s){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }catch(e){} }
-
-let state = loadState();
-
-/* ======================= TOASTS ======================= */
-function toast(msg){
-  const wrap = document.getElementById('toastWrap');
-  const el = document.createElement('div');
-  el.className='toast';
-  el.textContent = msg;
-  wrap.appendChild(el);
-  setTimeout(()=>el.remove(), 3600);
-}
-
-/* ======================= WALLET ======================= */
-async function connectWallet(){
-  if(window.ethereum){
-    try{
-      const accts = await window.ethereum.request({method:'eth_requestAccounts'});
-      state.wallet = accts[0];
-    }catch(e){
-      state.wallet = mockAddress();
-      toast('Wallet request declined — using a demo address instead.');
-    }
-  } else {
-    state.wallet = mockAddress();
-    toast('No injected wallet found — connected a demo address.');
-  }
-  saveState(state);
-  renderWallet();
-  renderAll();
-}
-function mockAddress(){
-  const chars='0123456789abcdef';
-  let a='0x'; for(let i=0;i<40;i++) a+=chars[Math.floor(Math.random()*16)];
-  return a;
-}
-function disconnectWallet(){ state.wallet=null; saveState(state); renderWallet(); renderAll(); }
-function renderWallet(){
-  const area = document.getElementById('walletArea');
-  if(state.wallet){
-    area.innerHTML = `<div class="wallet-pill" id="walletPill" title="Click to disconnect"><span class="dot"></span>${shortAddr(state.wallet)}</div>`;
-    document.getElementById('walletPill').onclick = disconnectWallet;
-  } else {
-    area.innerHTML = `<button class="btn btn-primary btn-small" id="connectBtn">Connect wallet</button>`;
-    document.getElementById('connectBtn').onclick = connectWallet;
-  }
-  const sw = document.getElementById('summaryWallet');
-  if(sw) sw.textContent = state.wallet ? shortAddr(state.wallet) : 'Not connected';
-}
-
-/* ======================= ROUTER ======================= */
-function currentRoute(){ return (location.hash || '#/').slice(1) || '/'; }
-function navigate(){
-  const route = currentRoute();
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('nav.links a').forEach(a=>a.classList.toggle('active', a.dataset.route===route));
-  const map = {'/':'page-home','/audit':'page-audit','/create':'page-create','/dashboard':'page-dashboard'};
-  const target = map[route] || 'page-home';
-  document.getElementById(target).classList.add('active');
-  window.scrollTo({top:0,behavior:'instant'});
-  renderAll();
-}
-window.addEventListener('hashchange', navigate);
-
-/* ======================= STATUS HELPERS ======================= */
-const STATUS_LABEL = {
-  pending_audit:'Pending audit', in_audit:'In audit', verified:'Verified · not started',
-  live:'Live bidding', ended:'Ended', rejected:'Rejected'
-};
-const STATUS_CLASS = {
-  pending_audit:'status-pending', in_audit:'status-pending', verified:'status-verified',
-  live:'status-live', ended:'status-ended', rejected:'status-rejected'
-};
 function effectiveStatus(l){
   if(l.status==='live' && l.endTime && nowTs()>l.endTime) return 'ended';
   return l.status;
@@ -804,341 +498,542 @@ function timeLeft(l){
   const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000);
   return `${h}h ${m}m left`;
 }
+function ipfsToGateway(uri){ return uri && uri.startsWith('ipfs://') ? IPFS_GATEWAY + uri.slice(7) : (uri||''); }
+function placeholderSvg(seed){
+  const cols=['#8C2F39','#4F9270','#C79A4B','#3B4A6B','#6B4A8C'];
+  const c=cols[Math.abs(hashStr(seed))%cols.length];
+  return `data:image/svg+xml;utf8,`+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='${c}'/><text x='50%' y='52%' font-family='monospace' font-size='14' fill='white' text-anchor='middle' opacity='.8'>${seed.slice(0,20)}</text></svg>`);
+}
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
 
-/* ======================= RENDER: CARDS ======================= */
+/* ===================== TOASTS ===================== */
+function toast(msg){
+  const wrap=document.getElementById('toastWrap');
+  const el=document.createElement('div'); el.className='toast'; el.textContent=msg;
+  wrap.appendChild(el); setTimeout(()=>el.remove(),4000);
+}
+
+/* ===================== IPFS UPLOAD ===================== */
+function pinFile(blob, opts={}){
+  const {filename='upload.bin', onProgress}=opts;
+  const url='https://api.pinata.cloud/pinning/pinFileToIPFS';
+  const form=new FormData();
+  form.append('file',blob,filename);
+  form.append('pinataMetadata',JSON.stringify({name:filename}));
+  form.append('pinataOptions',JSON.stringify({cidVersion:1}));
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST',url);
+    xhr.setRequestHeader('Authorization',`Bearer ${PINATA_JWT}`);
+    xhr.upload.addEventListener('progress',e=>{if(e.lengthComputable) onProgress?.(e.loaded/e.total);});
+    xhr.addEventListener('load',()=>{
+      let data={};
+      try{data=JSON.parse(xhr.responseText);}catch(e){}
+      if(xhr.status<200||xhr.status>=300){
+        const r=typeof data.error==='string'?data.error:(data.error?.details||data.message||`HTTP ${xhr.status}`);
+        return reject(new Error(r));
+      }
+      const cid=data.IpfsHash||data.cid;
+      if(!cid) return reject(new Error('Upload succeeded but returned no CID.'));
+      resolve(cid);
+    });
+    xhr.addEventListener('error',()=>reject(new Error('Could not reach Pinata.')));
+    xhr.send(form);
+  });
+}
+function pinJSON(obj, filename='metadata.json'){
+  const blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+  return pinFile(blob,{filename});
+}
+
+/* ===================== WALLET ===================== */
+let walletAddr=null, provider=null, signer=null, contract=null;
+
+async function getReadContract(){
+  if(contract) return contract;
+  try{
+    if(window.ethereum){
+      const p=new ethers.BrowserProvider(window.ethereum);
+      return new ethers.Contract(CONTRACT_ADDRESS,MARKETPLACE_ABI,p);
+    }
+  }catch(e){}
+  return null;
+}
+
+async function connectWallet(){
+  if(!window.ethereum){ toast('No wallet extension found — install MetaMask.'); return; }
+  try{
+    provider=new ethers.BrowserProvider(window.ethereum);
+    const accts=await provider.send('eth_requestAccounts',[]);
+    walletAddr=accts[0];
+    signer=await provider.getSigner();
+    contract=new ethers.Contract(CONTRACT_ADDRESS,MARKETPLACE_ABI,signer);
+    toast('Wallet connected.');
+  }catch(e){ toast(parseErr(e)); }
+  renderWallet(); renderAll(); refreshChainListings();
+}
+
+function disconnectWallet(){ walletAddr=null; signer=null; contract=null; renderWallet(); renderAll(); }
+
+function renderWallet(){
+  const area=document.getElementById('walletArea');
+  if(walletAddr){
+    area.innerHTML=`<div class="wallet-pill" id="walletPill"><span class="dot"></span>${shortAddr(walletAddr)}</div>`;
+    document.getElementById('walletPill').onclick=disconnectWallet;
+  } else {
+    area.innerHTML=`<button class="btn btn-primary btn-small" id="connectBtn">Connect wallet</button>`;
+    document.getElementById('connectBtn').onclick=connectWallet;
+  }
+  const sw=document.getElementById('summaryWallet');
+  if(sw) sw.textContent=walletAddr?shortAddr(walletAddr):'Not connected';
+}
+
+if(window.ethereum){
+  window.ethereum.on?.('accountsChanged',()=>connectWallet());
+  window.ethereum.on?.('chainChanged',()=>location.reload());
+}
+
+/* ===================== CHAIN DATA ===================== */
+let listings=[];
+let chainRefreshInFlight=false;
+
+const metaFetchCache={};
+async function fetchMeta(tokenURI){
+  if(!tokenURI) return null;
+  if(metaFetchCache[tokenURI]) return metaFetchCache[tokenURI];
+  try{
+    const res=await fetch(ipfsToGateway(tokenURI),{signal:AbortSignal.timeout(8000)});
+    const json=await res.json();
+    metaFetchCache[tokenURI]=json;
+    return json;
+  }catch(e){return null;}
+}
+
+async function mergeListing(c, id){
+  // getListing now returns [ListingMeta m, AuctionState s]
+  const [m, s]=await c.getListing(id);
+  const status=CHAIN_STATUS_MAP[Number(s.status)]||'pending_audit';
+  const ipfsMeta=await fetchMeta(m.tokenURI).catch(()=>null);
+  const imageCID=ipfsMeta?.image?ipfsToGateway(ipfsMeta.image):null;
+  return {
+    id:String(id),
+    collection:m.collection,
+    tokenId:m.tokenId.toString(),
+    creatorAddress:m.creator,
+    artist:shortAddr(m.creator),
+    reserve:Number(ethers.formatEther(m.reservePrice)),
+    status,
+    auditNote:s.auditNote,
+    startTime:Number(s.startTime)*1000||0,
+    endTime:Number(s.endTime)>0?Number(s.endTime)*1000:null,
+    currentBid:Number(ethers.formatEther(s.highestBid)),
+    currentBidder:s.highestBidder!==ethers.ZeroAddress?shortAddr(s.highestBidder):null,
+    currentBidderFull:s.highestBidder,
+    durationHrs:Math.round(Number(m.auctionDuration)/3600),
+    settled:s.settled,
+    tokenURI:m.tokenURI,
+    title:ipfsMeta?.name||`Token #${m.tokenId}`,
+    description:ipfsMeta?.description||'',
+    category:ipfsMeta?.attributes?.find(a=>a.trait_type==='Category')?.value||'',
+    edition:ipfsMeta?.attributes?.find(a=>a.trait_type==='Edition')?.value||'1 of 1',
+    image:imageCID||placeholderSvg(m.tokenURI||String(id)),
+  };
+}
+
+async function fetchBidHistory(c,listingId){
+  try{
+    const filter=c.filters.BidPlaced(listingId);
+    const logs=await c.queryFilter(filter,0,'latest');
+    return logs.map(l=>({bidder:shortAddr(l.args.bidder),amount:Number(ethers.formatEther(l.args.amount))}));
+  }catch(e){return [];}
+}
+
+async function refreshChainListings(){
+  if(chainRefreshInFlight) return;
+  const loadEl=document.getElementById('loadingAudit');
+  if(loadEl) loadEl.textContent='Loading listings from chain…';
+  const c=await getReadContract();
+  if(!c){ if(loadEl) loadEl.textContent=''; return; }
+  chainRefreshInFlight=true;
+  try{
+    const count=Number(await c.nextListingId());
+    if(count===0){ listings=[]; renderAll(); if(loadEl) loadEl.textContent=''; return; }
+    const raw=await Promise.all(Array.from({length:count},(_,i)=>mergeListing(c,i).catch(()=>null)));
+    listings=raw.filter(Boolean).reverse();
+    renderAll();
+  }catch(e){ toast('Could not read listings: '+parseErr(e)); }
+  finally{ chainRefreshInFlight=false; if(loadEl) loadEl.textContent=''; }
+}
+
+/* ===================== RENDER: CARDS ===================== */
 function pieceCard(l){
-  const st = effectiveStatus(l);
-  const price = st==='live'||st==='ended' ? (l.currentBid||l.reserve) : l.reserve;
-  const priceLabel = st==='live' ? 'Current bid' : st==='ended' ? 'Final bid' : 'Reserve';
+  const st=effectiveStatus(l);
+  const price=st==='live'||st==='ended'?(l.currentBid||l.reserve):l.reserve;
+  const priceLabel=st==='live'?'Current bid':st==='ended'?'Final bid':'Reserve';
   return `
   <div class="piece-card" data-id="${l.id}">
     <div class="piece-media">
       <span class="status-tag ${STATUS_CLASS[st]}"><span class="dot"></span>${STATUS_LABEL[st]}</span>
-      <img src="${l.image}" alt="${l.title}">
+      <img src="${l.image}" alt="${l.title}" loading="lazy">
     </div>
     <div class="piece-body">
       <div>
         <p class="piece-title">${l.title}</p>
-        <p class="piece-artist">${l.artist} · ${l.category}</p>
+        <p class="piece-artist">${l.artist}${l.category?' · '+l.category:''}</p>
       </div>
       <div class="piece-meta">
         <div><div class="k">${priceLabel.toUpperCase()}</div><div class="v">${fmtEth(price)} ETH</div></div>
-        <div style="text-align:right;">${st==='live' ? `<div class="piece-timer">${timeLeft(l)}</div>` : ''}</div>
+        <div style="text-align:right;">${st==='live'?`<div class="piece-timer">${timeLeft(l)}</div>`:''}</div>
       </div>
     </div>
   </div>`;
 }
 
-function renderGrid(el, listings){
-  if(listings.length===0){
-    el.innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><h4>Nothing here yet</h4><p>Check back soon, or list a work of your own.</p></div>`;
+function renderGrid(el,items){
+  if(!items.length){
+    el.innerHTML=`<div class="empty-state" style="grid-column:1/-1"><h4>Nothing here yet</h4><p>Check back soon, or list your own work.</p></div>`;
     return;
   }
-  el.innerHTML = listings.map(pieceCard).join('');
-  el.querySelectorAll('.piece-card').forEach(card=>{
-    card.addEventListener('click', ()=> openPiece(card.dataset.id));
-  });
+  el.innerHTML=items.map(pieceCard).join('');
+  el.querySelectorAll('.piece-card').forEach(c=>c.addEventListener('click',()=>openPiece(c.dataset.id)));
 }
 
 function renderHome(){
-  document.getElementById('statVerified').textContent = state.listings.filter(l=>['verified','live','ended'].includes(effectiveStatus(l))).length;
-  document.getElementById('statLive').textContent = state.listings.filter(l=>effectiveStatus(l)==='live').length;
-  const vol = state.listings.filter(l=>effectiveStatus(l)==='ended').reduce((s,l)=>s+ (l.currentBid||0),0);
-  document.getElementById('statVolume').textContent = fmtEth(vol);
-  const featured = state.listings.filter(l=>effectiveStatus(l)==='live').slice(0,3);
-  renderGrid(document.getElementById('homeFeatured'), featured.length? featured : state.listings.slice(0,3));
+  document.getElementById('statVerified').textContent=listings.filter(l=>['verified','live','ended'].includes(effectiveStatus(l))).length;
+  document.getElementById('statLive').textContent=listings.filter(l=>effectiveStatus(l)==='live').length;
+  const vol=listings.filter(l=>effectiveStatus(l)==='ended').reduce((s,l)=>s+(l.currentBid||0),0);
+  document.getElementById('statVolume').textContent=fmtEth(vol);
+  const live=listings.filter(l=>effectiveStatus(l)==='live').slice(0,3);
+  renderGrid(document.getElementById('homeFeatured'),live.length?live:listings.slice(0,3));
 }
 
 let activeFilter='all';
 function renderAuditFloor(){
-  const list = state.listings
-    .slice()
-    .sort((a,b)=>b.createdAt-a.createdAt)
-    .filter(l=> activeFilter==='all' ? true : effectiveStatus(l)===activeFilter);
-  renderGrid(document.getElementById('auditGrid'), list);
+  const list=listings.filter(l=>activeFilter==='all'?true:effectiveStatus(l)===activeFilter);
+  renderGrid(document.getElementById('auditGrid'),list);
 }
-document.getElementById('filterBar').addEventListener('click', e=>{
-  const chip = e.target.closest('.chip'); if(!chip) return;
+document.getElementById('filterBar').addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');if(!chip)return;
   document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('active'));
-  chip.classList.add('active');
-  activeFilter = chip.dataset.filter;
-  renderAuditFloor();
+  chip.classList.add('active'); activeFilter=chip.dataset.filter; renderAuditFloor();
 });
 
-/* ======================= PIECE / BID MODAL ======================= */
-function openPiece(id){
-  const l = state.listings.find(x=>x.id===id);
-  if(!l) return;
-  const st = effectiveStatus(l);
-  const body = document.getElementById('modalBody');
-  let actionHtml = '';
-
+/* ===================== PIECE / BID MODAL ===================== */
+async function openPiece(id){
+  const l=listings.find(x=>x.id===id); if(!l) return;
+  const st=effectiveStatus(l);
+  let bids=[];
+  if(st==='live'||st==='ended'){
+    const c=await getReadContract();
+    if(c) bids=await fetchBidHistory(c,BigInt(id));
+  }
+  const minNext=fmtEth((l.currentBid||l.reserve)*1.05);
+  let actionHtml='';
   if(st==='live'){
-    const minNext = fmtEth((l.currentBid||l.reserve) * 1.05);
-    actionHtml = `
+    actionHtml=`
       <div class="field">
         <label for="bidAmount">Your bid (ETH) — minimum ${minNext}</label>
-        <input type="number" id="bidAmount" step="0.01" min="${minNext}" placeholder="${minNext}">
+        <input type="number" id="bidAmount" step="0.001" min="${minNext}" placeholder="${minNext}">
       </div>
       <button class="btn btn-primary" style="width:100%;" id="placeBidBtn">Place bid</button>
-      <div class="connect-note">Escrowed on submit. If you're outbid, your ETH becomes withdrawable instantly.</div>`;
-  } else if(st==='pending_audit'||st==='in_audit'){
-    actionHtml = `<div class="empty-state"><h4>Awaiting review</h4><p>This piece hasn't cleared audit yet — bidding opens automatically once verified.</p></div>`;
-  } else if(st==='verified'){
-    actionHtml = `<div class="empty-state"><h4>Verified — auction not started</h4><p>The lister can open bidding from their dashboard.</p></div>`;
-  } else if(st==='ended'){
-    actionHtml = `<div class="summary-row"><span class="k">Won by</span><span>${l.winner || l.currentBidder || '—'}</span></div>
+      <div class="connect-note">Escrowed on submit. Outbid funds become instantly withdrawable.</div>`;
+  }else if(st==='pending_audit'||st==='in_audit'){
+    actionHtml=`<div class="empty-state"><h4>Awaiting review</h4><p>Bidding opens once the piece clears audit.</p></div>`;
+  }else if(st==='verified'){
+    actionHtml=`<div class="empty-state"><h4>Verified</h4><p>The lister can open bidding from their dashboard.</p></div>`;
+  }else if(st==='ended'){
+    actionHtml=`<div class="summary-row"><span class="k">Won by</span><span>${l.currentBidder||'—'}</span></div>
       <div class="summary-row"><span class="k">Final price</span><span>${fmtEth(l.currentBid)} ETH</span></div>`;
-  } else if(st==='rejected'){
-    actionHtml = `<div class="empty-state"><h4>Rejected in audit</h4><p>${l.auditNote||'Did not meet authenticity criteria.'}</p></div>`;
+    if(!l.settled){
+      actionHtml+=`<button class="btn btn-primary" style="width:100%;margin-top:14px;" id="settleBtn">Settle on-chain</button>
+        <div class="connect-note">Anyone can trigger settlement to release the NFT and funds.</div>`;
+    }
+  }else if(st==='rejected'){
+    actionHtml=`<div class="empty-state"><h4>Rejected in audit</h4><p>${l.auditNote||'Did not meet authenticity criteria.'}</p></div>`;
   }
 
-  body.innerHTML = `
+  const body=document.getElementById('modalBody');
+  body.innerHTML=`
     <div class="modal-top">
       <div>
         <span class="status-tag ${STATUS_CLASS[st]}" style="position:static;display:inline-flex;margin-bottom:10px;"><span class="dot"></span>${STATUS_LABEL[st]}</span>
         <h3>${l.title}</h3>
-        <p style="color:var(--text-lo);font-size:13.5px;margin:4px 0 0;">${l.artist} · ${l.category} · Edition ${l.edition}</p>
+        <p style="color:var(--text-lo);font-size:13.5px;margin:4px 0 0;">${l.artist}${l.category?' · '+l.category:''} · Edition ${l.edition}</p>
       </div>
     </div>
-    <img src="${l.image}" style="width:100%;border:1px solid var(--line);margin-bottom:16px;">
+    <img src="${l.image}" style="width:100%;border:1px solid var(--line);margin-bottom:16px;" loading="lazy">
     <p style="font-size:14px;color:var(--text-lo);line-height:1.6;">${l.description}</p>
+    <div class="summary-row"><span class="k">Collection</span><span><code>${shortAddr(l.collection)}</code></span></div>
+    <div class="summary-row"><span class="k">Token ID</span><span>#${l.tokenId}</span></div>
     <div class="summary-row"><span class="k">Reserve</span><span>${fmtEth(l.reserve)} ETH</span></div>
-    ${st==='live' ? `<div class="summary-row"><span class="k">Current bid</span><span>${fmtEth(l.currentBid||l.reserve)} ETH</span></div>
-    <div class="summary-row"><span class="k">Time left</span><span>${timeLeft(l)}</span></div>` : ''}
-    ${l.bids && l.bids.length ? `<div class="bid-history">${l.bids.slice().reverse().map(b=>`<div class="bid-row"><span>${b.bidder}</span><span>${fmtEth(b.amount)} ETH</span></div>`).join('')}</div>` : ''}
-    <div style="margin-top:16px;">${actionHtml}</div>
-  `;
+    ${st==='live'?`<div class="summary-row"><span class="k">Current bid</span><span>${fmtEth(l.currentBid||l.reserve)} ETH</span></div>
+    <div class="summary-row"><span class="k">Time left</span><span>${timeLeft(l)}</span></div>`:''}
+    ${bids.length?`<div class="bid-history">${bids.slice().reverse().map(b=>`<div class="bid-row"><span>${b.bidder}</span><span>${fmtEth(b.amount)} ETH</span></div>`).join('')}</div>`:''}
+    <div style="margin-top:16px;">${actionHtml}</div>`;
 
   document.getElementById('bidOverlay').classList.add('open');
-  const bidBtn = document.getElementById('placeBidBtn');
-  if(bidBtn){
-    bidBtn.onclick = ()=> placeBid(l.id);
+  document.getElementById('placeBidBtn')?.addEventListener('click',()=>placeBid(id,l));
+  document.getElementById('settleBtn')?.addEventListener('click',()=>settleAuction(id));
+}
+
+async function settleAuction(id){
+  if(!contract){toast('Connect a wallet first.');await connectWallet();return;}
+  try{
+    const tx=await contract.settle(BigInt(id));
+    toast('Settling — waiting for confirmation…');
+    await tx.wait();
+    toast('Auction settled.');
+    document.getElementById('bidOverlay').classList.remove('open');
+    refreshChainListings();
+  }catch(e){toast(parseErr(e));}
+}
+
+document.getElementById('closeModal').onclick=()=>document.getElementById('bidOverlay').classList.remove('open');
+document.getElementById('bidOverlay').addEventListener('click',e=>{if(e.target.id==='bidOverlay')e.currentTarget.classList.remove('open');});
+
+async function placeBid(id,l){
+  if(!walletAddr){toast('Connect a wallet first.');await connectWallet();return;}
+  if(!contract){toast('Contract not ready — reconnect wallet.');return;}
+  const input=document.getElementById('bidAmount');
+  const amt=parseFloat(input.value);
+  const minNext=(l.currentBid||l.reserve)*1.05;
+  if(!amt||amt<minNext){toast(`Bid must be at least ${fmtEth(minNext)} ETH.`);return;}
+  const btn=document.getElementById('placeBidBtn');
+  if(btn){btn.disabled=true;btn.textContent='Confirm in wallet…';}
+  try{
+    const tx=await contract.placeBid(BigInt(id),{value:ethers.parseEther(String(amt))});
+    toast('Bid sent — waiting for confirmation…');
+    await tx.wait();
+    toast(`Bid of ${fmtEth(amt)} ETH confirmed.`);
+    document.getElementById('bidOverlay').classList.remove('open');
+    refreshChainListings();
+  }catch(e){
+    toast(parseErr(e));
+    if(btn){btn.disabled=false;btn.textContent='Place bid';}
   }
 }
-document.getElementById('closeModal').onclick = ()=> document.getElementById('bidOverlay').classList.remove('open');
-document.getElementById('bidOverlay').addEventListener('click', e=>{
-  if(e.target.id==='bidOverlay') e.currentTarget.classList.remove('open');
+
+/* ===================== CREATE FORM ===================== */
+let selectedFile=null;
+
+const uploadBox=document.getElementById('uploadBox');
+
+function attachFileHandler(inputEl){
+  inputEl.addEventListener('change',e=>{
+    const file=e.target.files[0]; if(!file) return;
+    selectedFile=file;
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      uploadBox.classList.add('has-img');
+      uploadBox.innerHTML=`<img src="${ev.target.result}" alt="preview"><input type="file" id="f-image" accept="image/*">`;
+      attachFileHandler(document.getElementById('f-image'));
+    };
+    reader.readAsDataURL(file);
+  });
+}
+attachFileHandler(document.getElementById('f-image'));
+
+document.getElementById('createForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  if(!walletAddr){toast('Connect a wallet to list a work.');await connectWallet();if(!walletAddr)return;}
+  if(!contract){toast('Contract not ready — reconnect wallet.');return;}
+  if(!selectedFile){toast('Please select an image file.');return;}
+
+  const title      = document.getElementById('f-title').value.trim();
+  const desc       = document.getElementById('f-desc').value.trim();
+  const category   = document.getElementById('f-category').value;
+  const edition    = document.getElementById('f-edition').value.trim()||'1 of 1';
+  const reserve    = parseFloat(document.getElementById('f-reserve').value);
+  const duration   = parseInt(document.getElementById('f-duration').value,10);
+  const colName    = document.getElementById('f-colname').value.trim();
+  const colSymbol  = document.getElementById('f-colsymbol').value.trim().toUpperCase();
+
+  if(!title||!desc||!reserve){toast('Fill in title, description and reserve price.');return;}
+  if(!colName||!colSymbol){toast('Fill in collection name and symbol.');return;}
+
+  const submitBtn      = document.getElementById('submitBtn');
+  const progressWrap   = document.getElementById('uploadProgress');
+  const progressLabel  = document.getElementById('uploadProgressLabel');
+  const progressFill   = document.getElementById('uploadProgressFill');
+  submitBtn.disabled=true; submitBtn.textContent='Uploading…';
+  progressWrap.style.display='block';
+
+  try{
+    progressLabel.textContent='Pinning image to IPFS…';
+    const imageCID=await pinFile(selectedFile,{
+      filename:selectedFile.name,
+      onProgress:f=>{ progressFill.style.width=Math.round(f*50)+'%'; }
+    });
+
+    progressLabel.textContent='Pinning metadata…';
+    const metadata={
+      name:title, description:desc,
+      image:`ipfs://${imageCID}`,
+      attributes:[
+        {trait_type:'Category',value:category},
+        {trait_type:'Edition',value:edition},
+        {trait_type:'Creator',value:walletAddr},
+      ]
+    };
+    const metaCID=await pinJSON(metadata,`${title.replace(/\s+/g,'-')}-metadata.json`);
+    progressFill.style.width='65%';
+    const tokenURI=`ipfs://${metaCID}`;
+
+    progressLabel.textContent='Submitting on-chain…';
+    submitBtn.textContent='Confirm in wallet…';
+    const tx=await contract.listForAudit(
+      tokenURI,
+      ethers.parseEther(String(reserve)),
+      BigInt(duration),
+      colName,
+      colSymbol
+    );
+    progressFill.style.width='85%';
+    toast('Transaction sent — waiting for confirmation…');
+    await tx.wait();
+    progressFill.style.width='100%';
+    toast(`"${title}" submitted for audit — NFT minted into escrow.`);
+    resetCreateForm();
+    location.hash='#/dashboard';
+    refreshChainListings();
+  }catch(err){
+    toast(parseErr(err));
+  }finally{
+    submitBtn.disabled=false; submitBtn.textContent='Submit for audit';
+    progressWrap.style.display='none'; progressFill.style.width='0%';
+  }
 });
 
-function placeBid(id){
-  if(!state.wallet){ toast('Connect a wallet first.'); connectWallet(); return; }
-  const l = state.listings.find(x=>x.id===id);
-  const input = document.getElementById('bidAmount');
-  const amt = parseFloat(input.value);
-  const minNext = (l.currentBid||l.reserve) * 1.05;
-  if(!amt || amt < minNext){ toast(`Bid must be at least ${fmtEth(minNext)} ETH.`); return; }
-  l.bids.push({bidder: shortAddr(state.wallet), amount: amt, time: nowTs()});
-  l.currentBid = amt;
-  l.currentBidder = shortAddr(state.wallet);
-  saveState(state);
-  toast(`Bid of ${fmtEth(amt)} ETH placed on "${l.title}".`);
-  document.getElementById('bidOverlay').classList.remove('open');
-  renderAll();
+function resetCreateForm(){
+  selectedFile=null;
+  document.getElementById('createForm').reset();
+  uploadBox.classList.remove('has-img');
+  uploadBox.innerHTML=`<div class="upload-icon">🖼</div><div>Click to choose an image</div><div style="font-size:12px;color:var(--text-faint);margin-top:4px;">PNG, JPG, GIF — pinned to IPFS on submit</div><input type="file" id="f-image" accept="image/*">`;
+  attachFileHandler(document.getElementById('f-image'));
 }
 
-/* ======================= CREATE FORM ======================= */
-const uploadBox = document.getElementById('uploadBox');
-const fileInput = document.getElementById('f-image');
-let uploadedImage = null;
-fileInput.addEventListener('change', ()=>{
-  const file = fileInput.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    uploadedImage = e.target.result;
-    uploadBox.classList.add('has-img');
-    uploadBox.innerHTML = `<img src="${uploadedImage}"><input type="file" id="f-image" accept="image/*">`;
-    document.getElementById('f-image').addEventListener('change', fileInput.onchange);
-  };
-  reader.readAsDataURL(file);
-});
-
-document.getElementById('createForm').addEventListener('submit', e=>{
-  e.preventDefault();
-  if(!state.wallet){ toast('Connect a wallet to list a work.'); connectWallet(); return; }
-  const title = document.getElementById('f-title').value.trim();
-  const desc = document.getElementById('f-desc').value.trim();
-  const category = document.getElementById('f-category').value;
-  const edition = document.getElementById('f-edition').value.trim() || '1 of 1';
-  const reserve = parseFloat(document.getElementById('f-reserve').value);
-  const durationHrs = parseInt(document.getElementById('f-duration').value,10);
-  if(!title || !desc || !reserve){ toast('Fill in title, description and reserve price.'); return; }
-
-  const listing = {
-    id: uid(), title, description:desc, category, edition, reserve,
-    image: uploadedImage || placeholderImg(title),
-    artist: shortAddr(state.wallet), creatorAddress: state.wallet,
-    status:'pending_audit', createdAt: nowTs(), bids:[], currentBid:0, currentBidder:null,
-    durationHrs, auditedAt:null, auditNote:null, endTime:null, endedAt:null, winner:null,
-  };
-  state.listings.unshift(listing);
-  saveState(state);
-  toast(`"${title}" submitted for audit.`);
-  e.target.reset();
-  uploadedImage = null;
-  uploadBox.classList.remove('has-img');
-  uploadBox.innerHTML = `<span id="uploadLabel">Click to choose an image — PNG, JPG, or GIF</span><input type="file" id="f-image" accept="image/*">`;
-  document.getElementById('f-image').addEventListener('change', fileInput.onchange);
-  location.hash = '#/dashboard';
-});
-
-/* ======================= DASHBOARD ======================= */
-let dashTab = 'creator';
-document.querySelector('.tabbar').addEventListener('click', e=>{
-  const btn = e.target.closest('button[data-tab]'); if(!btn) return;
-  dashTab = btn.dataset.tab;
-  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active', b===btn));
-  document.getElementById('tab-creator').style.display = dashTab==='creator' ? 'block':'none';
-  document.getElementById('tab-bidder').style.display = dashTab==='bidder' ? 'block':'none';
-  document.getElementById('tab-auditor').style.display = dashTab==='auditor' ? 'block':'none';
+/* ===================== DASHBOARD ===================== */
+let dashTab='creator';
+document.querySelector('.tabbar').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-tab]'); if(!btn) return;
+  dashTab=btn.dataset.tab;
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.toggle('active',b===btn));
+  ['creator','bidder','auditor'].forEach(t=>{ document.getElementById(`tab-${t}`).style.display=t===dashTab?'block':'none'; });
 });
 
 function renderDashboard(){
-  const sub = document.getElementById('dashSub');
-  if(!state.wallet){
-    sub.textContent = 'Connect a wallet to see your listings and bids.';
-  } else {
-    sub.textContent = `Showing activity for ${shortAddr(state.wallet)}`;
-  }
-  renderCreatorTab();
-  renderBidderTab();
-  renderAuditorTab();
+  document.getElementById('dashSub').textContent=walletAddr
+    ?`Showing activity for ${shortAddr(walletAddr)}`
+    :'Connect a wallet to see your listings and bids.';
+  renderCreatorTab(); renderBidderTab(); renderAuditorTab();
 }
 
 function renderCreatorTab(){
-  const mine = state.wallet ? state.listings.filter(l=>l.creatorAddress===state.wallet) : [];
-  document.getElementById('cStatListed').textContent = mine.length;
-  document.getElementById('cStatVerified').textContent = mine.filter(l=>['verified','live','ended'].includes(effectiveStatus(l))).length;
-  document.getElementById('cStatLive').textContent = mine.filter(l=>effectiveStatus(l)==='live').length;
-  const earned = mine.filter(l=>effectiveStatus(l)==='ended').reduce((s,l)=>s+(l.currentBid||0),0);
-  document.getElementById('cStatEarned').textContent = fmtEth(earned);
-
-  const wrap = document.getElementById('creatorTableWrap');
-  if(!state.wallet){
-    wrap.innerHTML = `<div class="empty-state"><h4>No wallet connected</h4><p>Connect to view works you've listed.</p></div>`;
-    return;
-  }
-  if(mine.length===0){
-    wrap.innerHTML = `<div class="empty-state"><h4>You haven't listed anything yet</h4><p>Submit a work for audit to see it here.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = `<table class="table"><thead><tr><th></th><th>Work</th><th>Status</th><th>Reserve</th><th>Current bid</th><th>Action</th></tr></thead><tbody>
-    ${mine.map(l=>{
-      const st = effectiveStatus(l);
-      return `<tr>
-        <td><img class="thumb" src="${l.image}"></td>
-        <td>${l.title}</td>
-        <td><span class="pill ${STATUS_CLASS[st]}"><span class="dot"></span>${STATUS_LABEL[st]}</span></td>
-        <td>${fmtEth(l.reserve)} ETH</td>
-        <td>${l.currentBid ? fmtEth(l.currentBid)+' ETH' : '—'}</td>
-        <td>${st==='verified' ? `<button class="btn btn-small" data-start="${l.id}">Start auction</button>` : `<button class="btn btn-small" data-view="${l.id}">View</button>`}</td>
-      </tr>`;
-    }).join('')}
+  const mine=walletAddr?listings.filter(l=>addrEq(l.creatorAddress,walletAddr)):[];
+  document.getElementById('cStatListed').textContent=mine.length;
+  document.getElementById('cStatVerified').textContent=mine.filter(l=>['verified','live','ended'].includes(effectiveStatus(l))).length;
+  document.getElementById('cStatLive').textContent=mine.filter(l=>effectiveStatus(l)==='live').length;
+  const earned=mine.filter(l=>effectiveStatus(l)==='ended').reduce((s,l)=>s+(l.currentBid||0),0);
+  document.getElementById('cStatEarned').textContent=fmtEth(earned);
+  const wrap=document.getElementById('creatorTableWrap');
+  if(!walletAddr){wrap.innerHTML=`<div class="empty-state"><h4>No wallet</h4><p>Connect to see your listings.</p></div>`;return;}
+  if(!mine.length){wrap.innerHTML=`<div class="empty-state"><h4>No listings yet</h4><p>Submit a work to see it here.</p></div>`;return;}
+  wrap.innerHTML=`<table class="table"><thead><tr><th></th><th>Work</th><th>Collection</th><th>Status</th><th>Reserve</th><th>Current bid</th><th>Action</th></tr></thead><tbody>
+    ${mine.map(l=>{const st=effectiveStatus(l); return `<tr>
+      <td><img class="thumb" src="${l.image}" loading="lazy"></td>
+      <td>${l.title}</td>
+      <td><code style="font-size:11px;">${shortAddr(l.collection)}</code></td>
+      <td><span class="pill ${STATUS_CLASS[st]}"><span class="dot"></span>${STATUS_LABEL[st]}</span></td>
+      <td>${fmtEth(l.reserve)} ETH</td>
+      <td>${l.currentBid?fmtEth(l.currentBid)+' ETH':'—'}</td>
+      <td>${st==='verified'?`<button class="btn btn-small" data-start="${l.id}">Start auction</button>`:`<button class="btn btn-small" data-view="${l.id}">View</button>`}</td>
+    </tr>`;}).join('')}
   </tbody></table>`;
   wrap.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openPiece(b.dataset.view));
-  wrap.querySelectorAll('[data-start]').forEach(b=>b.onclick=()=>{
-    const l = state.listings.find(x=>x.id===b.dataset.start);
-    l.status='live'; l.startedAt=nowTs(); l.endTime = nowTs() + l.durationHrs*3600000;
-    saveState(state); toast(`Auction started for "${l.title}".`); renderAll();
+  wrap.querySelectorAll('[data-start]').forEach(b=>b.onclick=async()=>{
+    if(!contract){toast('Connect a wallet first.');await connectWallet();return;}
+    try{
+      const tx=await contract.startAuction(BigInt(b.dataset.start));
+      toast('Starting auction…'); await tx.wait(); toast('Auction started.');
+      refreshChainListings();
+    }catch(err){toast(parseErr(err));}
   });
 }
 
 function renderBidderTab(){
-  const mine = state.wallet ? state.listings.filter(l=> l.bids.some(b=>b.bidder===shortAddr(state.wallet))) : [];
-  document.getElementById('bStatActive').textContent = mine.filter(l=>effectiveStatus(l)==='live').length;
-  const winning = mine.filter(l=>effectiveStatus(l)==='live' && l.currentBidder===shortAddr(state.wallet));
-  document.getElementById('bStatWinning').textContent = winning.length;
-  const won = mine.filter(l=>effectiveStatus(l)==='ended' && l.winner===shortAddr(state.wallet)).length;
-  document.getElementById('bStatWon').textContent = won;
-  const escrow = mine.filter(l=>effectiveStatus(l)==='live').reduce((s,l)=>{
-    const myBids = l.bids.filter(b=>b.bidder===shortAddr(state.wallet));
-    return s + (myBids.length? Math.max(...myBids.map(b=>b.amount)) : 0);
-  },0);
-  document.getElementById('bStatEscrow').textContent = fmtEth(escrow);
-
-  const wrap = document.getElementById('bidderTableWrap');
-  if(!state.wallet){
-    wrap.innerHTML = `<div class="empty-state"><h4>No wallet connected</h4><p>Connect to view bids you've placed.</p></div>`;
-    return;
-  }
-  if(mine.length===0){
-    wrap.innerHTML = `<div class="empty-state"><h4>No bids yet</h4><p>Visit the audit floor and bid on a verified work.</p></div>`;
-    return;
-  }
-  wrap.innerHTML = `<table class="table"><thead><tr><th></th><th>Work</th><th>Status</th><th>Your best bid</th><th>Current top bid</th><th></th></tr></thead><tbody>
-    ${mine.map(l=>{
-      const st = effectiveStatus(l);
-      const myBids = l.bids.filter(b=>b.bidder===shortAddr(state.wallet));
-      const myBest = Math.max(...myBids.map(b=>b.amount));
-      const winning = l.currentBidder===shortAddr(state.wallet);
-      return `<tr>
-        <td><img class="thumb" src="${l.image}"></td>
-        <td>${l.title}</td>
-        <td><span class="pill ${STATUS_CLASS[st]}"><span class="dot"></span>${st==='ended' && l.winner===shortAddr(state.wallet) ? 'You won' : STATUS_LABEL[st]}</span></td>
-        <td>${fmtEth(myBest)} ETH</td>
-        <td>${fmtEth(l.currentBid)} ETH ${winning ? '— you' : ''}</td>
-        <td><button class="btn btn-small" data-view2="${l.id}">View</button></td>
-      </tr>`;
-    }).join('')}
-  </tbody></table>`;
-  wrap.querySelectorAll('[data-view2]').forEach(b=>b.onclick=()=>openPiece(b.dataset.view2));
+  const wrap=document.getElementById('bidderTableWrap');
+  document.getElementById('bStatActive').textContent=0;
+  document.getElementById('bStatWinning').textContent=0;
+  document.getElementById('bStatWon').textContent=0;
+  document.getElementById('bStatEscrow').textContent='0.00';
+  if(!walletAddr){wrap.innerHTML=`<div class="empty-state"><h4>No wallet</h4><p>Connect to see your bids.</p></div>`;return;}
+  wrap.innerHTML=`<div class="empty-state"><h4>Open the audit floor to place bids</h4><p>Your active bids appear here once you've placed them. Bid history per piece is available in the piece modal.</p></div>`;
 }
 
 function renderAuditorTab(){
-  const pending = state.listings.filter(l=>['pending_audit','in_audit'].includes(l.status));
-  const q = document.getElementById('auditorQueue');
-  if(pending.length===0){
-    q.innerHTML = `<div class="empty-state"><h4>Queue is empty</h4><p>New submissions will appear here.</p></div>`;
-    return;
-  }
-  q.innerHTML = pending.map(l=>`
+  const pending=listings.filter(l=>['pending_audit','in_audit'].includes(l.status));
+  const q=document.getElementById('auditorQueue');
+  if(!pending.length){q.innerHTML=`<div class="empty-state"><h4>Queue is empty</h4><p>New submissions appear here automatically.</p></div>`;return;}
+  q.innerHTML=pending.map(l=>`
     <div class="audit-item">
-      <img src="${l.image}">
-      <div class="info"><b>${l.title}</b><span>${l.artist} · submitted ${new Date(l.createdAt).toLocaleDateString()}</span></div>
+      <img src="${l.image}" loading="lazy">
+      <div class="info"><b>${l.title}</b><span>${l.artist} · Token #${l.tokenId}</span></div>
       <div class="audit-actions">
         <button class="btn btn-small" data-reject="${l.id}">Reject</button>
         <button class="btn btn-small btn-primary" data-approve="${l.id}">Verify</button>
       </div>
     </div>`).join('');
-  q.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>{
-    const l = state.listings.find(x=>x.id===b.dataset.approve);
-    l.status='verified'; l.auditedAt=nowTs();
-    saveState(state); toast(`"${l.title}" verified.`); renderAll();
-  });
-  q.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>{
-    const l = state.listings.find(x=>x.id===b.dataset.reject);
-    l.status='rejected'; l.auditedAt=nowTs(); l.auditNote='Did not meet originality criteria.';
-    saveState(state); toast(`"${l.title}" rejected.`); renderAll();
-  });
+  q.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>decideAuditOnChain(b.dataset.approve,true,'Verified — original work.'));
+  q.querySelectorAll('[data-reject]').forEach(b=>b.onclick=()=>decideAuditOnChain(b.dataset.reject,false,'Did not meet originality criteria.'));
 }
 
-/* ======================= THEME ======================= */
-const themeToggle = document.getElementById('themeToggle');
-themeToggle.onclick = ()=>{
-  const cur = document.documentElement.getAttribute('data-theme');
-  const next = cur==='light' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', next);
-  try{ localStorage.setItem('provenance_theme', next); }catch(e){}
-};
-try{
-  const saved = localStorage.getItem('provenance_theme');
-  if(saved) document.documentElement.setAttribute('data-theme', saved);
-}catch(e){}
+async function decideAuditOnChain(id,approve,note){
+  if(!contract){toast('Connect a wallet first.');await connectWallet();return;}
+  const l=listings.find(x=>x.id===id);
+  try{
+    const tx=await contract.decideAudit(BigInt(id),approve,note);
+    toast('Recording audit decision…'); await tx.wait();
+    toast(`"${l?.title||'Listing'}" ${approve?'verified':'rejected'} on-chain.`);
+    refreshChainListings();
+  }catch(err){toast(parseErr(err));}
+}
 
-/* ======================= MASTER RENDER ======================= */
+/* ===================== THEME ===================== */
+document.getElementById('themeToggle').onclick=()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const next=cur==='light'?'dark':'light';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('provenance_theme',next);}catch(e){}
+};
+try{const t=localStorage.getItem('provenance_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+
+/* ===================== ROUTER ===================== */
+function currentRoute(){ return (location.hash||'#/').slice(1)||'/'; }
+function navigate(){
+  const route=currentRoute();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav.links a').forEach(a=>a.classList.toggle('active',a.dataset.route===route));
+  const map={'/':'page-home','/audit':'page-audit','/create':'page-create','/dashboard':'page-dashboard'};
+  document.getElementById(map[route]||'page-home').classList.add('active');
+  window.scrollTo({top:0,behavior:'instant'});
+  renderAll();
+  if(['/','/audit','/dashboard'].includes(route)) refreshChainListings();
+}
+window.addEventListener('hashchange',navigate);
+
 function renderAll(){
   renderWallet();
-  const route = currentRoute();
-  if(route==='/') renderHome();
-  if(route==='/audit') renderAuditFloor();
-  if(route==='/dashboard') renderDashboard();
+  const r=currentRoute();
+  if(r==='/') renderHome();
+  if(r==='/audit') renderAuditFloor();
+  if(r==='/dashboard') renderDashboard();
 }
 
-setInterval(()=>{ if(currentRoute()==='/audit' || currentRoute()==='/') renderAll(); }, 30000);
+setInterval(()=>{if(['/','/audit'].includes(currentRoute())) refreshChainListings();},30000);
 
 navigate();
 renderWallet();
+refreshChainListings();
 </script>
 </body>
 </html>

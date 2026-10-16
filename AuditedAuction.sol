@@ -4,72 +4,111 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+
+interface INFTFactory {
+    function mintForListing(
+        address creator,
+        string calldata collectionName,
+        string calldata collectionSymbol,
+        string calldata tokenURI_
+    ) external returns (address collection, uint256 tokenId);
+
+    function collectionOf(address creator) external view returns (address);
+}
+
+interface ICreatorCollection {
+    function safeTransferFrom(address from, address to, uint256 tokenId) external;
+}
 
 /**
- * @title AuditedAuction
- * @notice Marketplace for NFTs that must clear an independent audit before
- *         they can be auctioned. Flow per listing:
+ * @title AuditedAuction  (v3 — per-creator NFT collections via NFTFactory)
  *
- *         PendingAudit -> (auditor) -> Verified | Rejected
- *         Verified -> (creator calls startAuction) -> Live
- *         Live -> (anyone, after endTime) -> Ended  -> settle() transfers
- *         NFT to highest bidder and funds to creator (minus fee).
+ * Stack-depth fix: Listing is split into two structs.
+ *   ListingMeta  — immutable fields set on submission, never written again.
+ *   AuctionState — mutable auction/bid fields updated throughout the lifecycle.
  *
- *         Losing bidders use a pull-payment pattern (withdraw()) so a
- *         malicious bidder can never block the auction by reverting on
- *         receive.
- *
- *         The NFT itself is a standard external ERC721 (already minted by
- *         the creator). The creator must approve() this contract for the
- *         tokenId before calling listForAudit, and the token is pulled into
- *         escrow at that point so it cannot be sold or moved elsewhere
- *         while under audit or up for bid.
+ * Flow:
+ *   listForAudit()  → PendingAudit
+ *   beginAudit()    → InAudit          (auditor)
+ *   decideAudit()   → Verified | Rejected
+ *   startAuction()  → Live             (creator)
+ *   settle()        → Ended            (anyone, after endTime)
+ *   withdraw()      — losing bidders pull their ETH at any time
  */
 contract AuditedAuction is Ownable, ReentrancyGuard, ERC721Holder {
+
+    // ------------------------------------------------------------------ //
+    // Types                                                               //
+    // ------------------------------------------------------------------ //
+
     enum Status {
-        PendingAudit,
-        InAudit,
-        Verified,
-        Rejected,
-        Live,
-        Ended,
-        Cancelled
+        PendingAudit,   // 0
+        InAudit,        // 1
+        Verified,       // 2
+        Rejected,       // 3
+        Live,           // 4
+        Ended,          // 5
+        Cancelled       // 6
     }
 
-    struct Listing {
-        address nftContract;
-        uint256 tokenId;
+    /// Fields set once at submission time — never written again.
+    struct ListingMeta {
+        address  collection;         // creator's ERC-721 contract (from factory)
+        uint256  tokenId;            // token ID within that collection
         address payable creator;
-        uint256 reservePrice;      // wei
-        uint256 minBidIncrementBps; // basis points, e.g. 500 = 5%
-        uint256 auctionDuration;   // seconds, applied once startAuction is called
-        Status status;
-        address auditor;           // who reviewed it
-        string auditNote;          // short note, e.g. rejection reason
-        uint256 startTime;
-        uint256 endTime;
-        address highestBidder;
-        uint256 highestBid;
-        bool settled;
+        uint256  reservePrice;       // wei
+        uint256  minBidIncrementBps; // e.g. 500 = 5 %
+        uint256  auctionDuration;    // seconds
+        string   tokenURI;           // ipfs://CID — stored for the UI
     }
+
+    /// Fields that change as the listing moves through its lifecycle.
+    struct AuctionState {
+        Status   status;
+        address  auditor;
+        string   auditNote;
+        uint256  startTime;
+        uint256  endTime;
+        address  highestBidder;
+        uint256  highestBid;
+        bool     settled;
+    }
+
+    // ------------------------------------------------------------------ //
+    // State                                                               //
+    // ------------------------------------------------------------------ //
+
+    INFTFactory public immutable factory;
 
     uint256 public nextListingId;
-    mapping(uint256 => Listing) public listings;
+    mapping(uint256 => ListingMeta)  public meta;
+    mapping(uint256 => AuctionState) public state;
 
-    // bidder => listingId => refundable balance (outbid or auction cancelled)
+    /// pull-payment escrow: listingId => bidder => amount
     mapping(uint256 => mapping(address => uint256)) public pendingReturns;
 
     mapping(address => bool) public auditors;
 
-    uint256 public platformFeeBps = 250; // 2.5%
+    uint256 public platformFeeBps = 250;  // 2.5 %
     address payable public feeRecipient;
 
-    uint256 public constant MIN_AUCTION_DURATION = 1 hours;
-    uint256 public constant MAX_AUCTION_DURATION = 30 days;
-    uint256 public constant DEFAULT_MIN_INCREMENT_BPS = 500; // 5%
+    uint256 public constant MIN_AUCTION_DURATION      = 1 hours;
+    uint256 public constant MAX_AUCTION_DURATION      = 30 days;
+    uint256 public constant DEFAULT_MIN_INCREMENT_BPS = 500; // 5 %
 
-    event Listed(uint256 indexed listingId, address indexed creator, address nftContract, uint256 tokenId, uint256 reservePrice);
+    // ------------------------------------------------------------------ //
+    // Events                                                              //
+    // ------------------------------------------------------------------ //
+
+    event Listed(
+        uint256 indexed listingId,
+        address indexed creator,
+        address indexed collection,
+        uint256 tokenId,
+        uint256 reservePrice,
+        string  tokenURI
+    );
     event AuditDecided(uint256 indexed listingId, address indexed auditor, bool approved, string note);
     event AuctionStarted(uint256 indexed listingId, uint256 startTime, uint256 endTime);
     event BidPlaced(uint256 indexed listingId, address indexed bidder, uint256 amount);
@@ -78,25 +117,36 @@ contract AuditedAuction is Ownable, ReentrancyGuard, ERC721Holder {
     event Withdrawn(uint256 indexed listingId, address indexed bidder, uint256 amount);
     event AuditorUpdated(address indexed auditor, bool allowed);
 
+    // ------------------------------------------------------------------ //
+    // Modifiers                                                           //
+    // ------------------------------------------------------------------ //
+
     modifier onlyAuditor() {
         require(auditors[msg.sender], "Not an auditor");
         _;
     }
 
-    modifier listingExists(uint256 listingId) {
-        require(listingId < nextListingId, "No such listing");
+    modifier exists(uint256 id) {
+        require(id < nextListingId, "No such listing");
         _;
     }
 
-    constructor(address payable _feeRecipient) Ownable(msg.sender) {
-        require(_feeRecipient != address(0), "Bad fee recipient");
-        feeRecipient = _feeRecipient;
+    // ------------------------------------------------------------------ //
+    // Constructor                                                         //
+    // ------------------------------------------------------------------ //
+
+    constructor(address payable _feeRecipient, address _factory)
+        Ownable(msg.sender)
+    {
+        require(_feeRecipient != address(0) && _factory != address(0), "Zero address");
+        feeRecipient         = _feeRecipient;
+        factory              = INFTFactory(_factory);
         auditors[msg.sender] = true;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Admin                                                              */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------ //
+    // Admin                                                               //
+    // ------------------------------------------------------------------ //
 
     function setAuditor(address account, bool allowed) external onlyOwner {
         auditors[account] = allowed;
@@ -104,208 +154,248 @@ contract AuditedAuction is Ownable, ReentrancyGuard, ERC721Holder {
     }
 
     function setPlatformFee(uint256 bps) external onlyOwner {
-        require(bps <= 1000, "Fee too high"); // hard cap 10%
+        require(bps <= 1000, "Fee cap 10%");
         platformFeeBps = bps;
     }
 
     function setFeeRecipient(address payable recipient) external onlyOwner {
-        require(recipient != address(0), "Bad address");
+        require(recipient != address(0), "Zero address");
         feeRecipient = recipient;
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Listing + audit lifecycle                                         */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------ //
+    // Listing                                                             //
+    // ------------------------------------------------------------------ //
 
-    /// @notice Creator lists an already-minted NFT for audit. Requires prior
-    ///         approve()/setApprovalForAll() on the NFT contract for this
-    ///         contract's address. The token is escrowed immediately.
+    /**
+     * @notice Submit a work for audit.
+     *         The factory mints a fresh token into this contract's escrow
+     *         under the creator's own ERC-721 collection (created on first use).
+     *
+     * @param tokenURI_           IPFS URI for the ERC-721 metadata JSON.
+     * @param reservePrice        Minimum acceptable bid (wei).
+     * @param auctionDurationSecs Auction window length once the piece is verified.
+     * @param collectionName      ERC-721 name  — used only when creating a new collection.
+     * @param collectionSymbol    ERC-721 symbol — used only when creating a new collection.
+     */
     function listForAudit(
-        address nftContract,
-        uint256 tokenId,
+        string  calldata tokenURI_,
         uint256 reservePrice,
-        uint256 auctionDurationSeconds
+        uint256 auctionDurationSecs,
+        string  calldata collectionName,
+        string  calldata collectionSymbol
     ) external nonReentrant returns (uint256 listingId) {
-        require(reservePrice > 0, "Reserve must be > 0");
+        require(reservePrice > 0,            "Reserve must be > 0");
+        require(bytes(tokenURI_).length > 0, "No token URI");
         require(
-            auctionDurationSeconds >= MIN_AUCTION_DURATION &&
-            auctionDurationSeconds <= MAX_AUCTION_DURATION,
+            auctionDurationSecs >= MIN_AUCTION_DURATION &&
+            auctionDurationSecs <= MAX_AUCTION_DURATION,
             "Bad duration"
         );
-        require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "Not token owner");
 
-        IERC721(nftContract).safeTransferFrom(msg.sender, address(this), tokenId);
+        // Mint into escrow — kept in its own scope to free stack slots.
+        address collection;
+        uint256 tokenId;
+        {
+            (collection, tokenId) = factory.mintForListing(
+                msg.sender,
+                collectionName,
+                collectionSymbol,
+                tokenURI_
+            );
+        }
 
         listingId = nextListingId++;
-        Listing storage l = listings[listingId];
-        l.nftContract = nftContract;
-        l.tokenId = tokenId;
-        l.creator = payable(msg.sender);
-        l.reservePrice = reservePrice;
-        l.minBidIncrementBps = DEFAULT_MIN_INCREMENT_BPS;
-        l.auctionDuration = auctionDurationSeconds;
-        l.status = Status.PendingAudit;
 
-        emit Listed(listingId, msg.sender, nftContract, tokenId, reservePrice);
+        // Write meta — one storage pointer, minimal stack usage.
+        ListingMeta storage m = meta[listingId];
+        m.collection          = collection;
+        m.tokenId             = tokenId;
+        m.creator             = payable(msg.sender);
+        m.reservePrice        = reservePrice;
+        m.minBidIncrementBps  = DEFAULT_MIN_INCREMENT_BPS;
+        m.auctionDuration     = auctionDurationSecs;
+        m.tokenURI            = tokenURI_;
+
+        // Write state — default Status(0) == PendingAudit, everything else zeroed.
+        // Nothing to set explicitly; the mapping default is correct.
+
+        emit Listed(listingId, msg.sender, collection, tokenId, reservePrice, tokenURI_);
     }
 
-    /// @notice Auditor marks a submission as under active review (optional
-    ///         intermediate state so the UI can distinguish "queued" from
-    ///         "being looked at").
-    function beginAudit(uint256 listingId) external onlyAuditor listingExists(listingId) {
-        Listing storage l = listings[listingId];
-        require(l.status == Status.PendingAudit, "Not pending");
-        l.status = Status.InAudit;
-    }
+    // ------------------------------------------------------------------ //
+    // Audit lifecycle                                                     //
+    // ------------------------------------------------------------------ //
 
-    /// @notice Auditor approves or rejects a listing. Rejected NFTs are
-    ///         returned to the creator immediately.
-    function decideAudit(uint256 listingId, bool approve, string calldata note)
-        external
-        onlyAuditor
-        listingExists(listingId)
-        nonReentrant
+    function beginAudit(uint256 listingId)
+        external onlyAuditor exists(listingId)
     {
-        Listing storage l = listings[listingId];
+        AuctionState storage s = state[listingId];
+        require(s.status == Status.PendingAudit, "Not pending");
+        s.status = Status.InAudit;
+    }
+
+    function decideAudit(uint256 listingId, bool approve, string calldata note)
+        external onlyAuditor exists(listingId) nonReentrant
+    {
+        AuctionState storage s = state[listingId];
         require(
-            l.status == Status.PendingAudit || l.status == Status.InAudit,
+            s.status == Status.PendingAudit || s.status == Status.InAudit,
             "Not awaiting audit"
         );
-
-        l.auditor = msg.sender;
-        l.auditNote = note;
+        s.auditor   = msg.sender;
+        s.auditNote = note;
 
         if (approve) {
-            l.status = Status.Verified;
+            s.status = Status.Verified;
         } else {
-            l.status = Status.Rejected;
-            IERC721(l.nftContract).safeTransferFrom(address(this), l.creator, l.tokenId);
+            s.status = Status.Rejected;
+            ListingMeta storage m = meta[listingId];
+            ICreatorCollection(m.collection).safeTransferFrom(
+                address(this), m.creator, m.tokenId
+            );
         }
 
         emit AuditDecided(listingId, msg.sender, approve, note);
     }
 
-    /// @notice Creator opens bidding on a verified work. Uses the duration
-    ///         set at listing time.
-    function startAuction(uint256 listingId) external listingExists(listingId) {
-        Listing storage l = listings[listingId];
-        require(msg.sender == l.creator, "Not creator");
-        require(l.status == Status.Verified, "Not verified");
+    function startAuction(uint256 listingId) external exists(listingId) {
+        ListingMeta  storage m = meta[listingId];
+        AuctionState storage s = state[listingId];
+        require(msg.sender == m.creator,     "Not creator");
+        require(s.status == Status.Verified, "Not verified");
 
-        l.status = Status.Live;
-        l.startTime = block.timestamp;
-        l.endTime = block.timestamp + l.auctionDuration;
+        s.status    = Status.Live;
+        s.startTime = block.timestamp;
+        s.endTime   = block.timestamp + m.auctionDuration;
 
-        emit AuctionStarted(listingId, l.startTime, l.endTime);
+        emit AuctionStarted(listingId, s.startTime, s.endTime);
     }
 
-    /// @notice Creator can pull a verified-but-not-yet-live listing back,
-    ///         reclaiming the NFT. Cannot cancel once bidding has started.
-    function cancelBeforeAuction(uint256 listingId) external listingExists(listingId) nonReentrant {
-        Listing storage l = listings[listingId];
-        require(msg.sender == l.creator, "Not creator");
+    function cancelBeforeAuction(uint256 listingId)
+        external exists(listingId) nonReentrant
+    {
+        ListingMeta  storage m = meta[listingId];
+        AuctionState storage s = state[listingId];
+        require(msg.sender == m.creator, "Not creator");
         require(
-            l.status == Status.PendingAudit ||
-            l.status == Status.InAudit ||
-            l.status == Status.Verified,
+            s.status == Status.PendingAudit ||
+            s.status == Status.InAudit      ||
+            s.status == Status.Verified,
             "Too late to cancel"
         );
-        l.status = Status.Cancelled;
-        IERC721(l.nftContract).safeTransferFrom(address(this), l.creator, l.tokenId);
+        s.status = Status.Cancelled;
+        ICreatorCollection(m.collection).safeTransferFrom(
+            address(this), m.creator, m.tokenId
+        );
         emit AuctionCancelled(listingId);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Bidding                                                            */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------ //
+    // Bidding                                                             //
+    // ------------------------------------------------------------------ //
 
     function minNextBid(uint256 listingId) public view returns (uint256) {
-        Listing storage l = listings[listingId];
-        if (l.highestBid == 0) return l.reservePrice;
-        return l.highestBid + (l.highestBid * l.minBidIncrementBps) / 10000;
+        ListingMeta  storage m = meta[listingId];
+        AuctionState storage s = state[listingId];
+        if (s.highestBid == 0) return m.reservePrice;
+        return s.highestBid + (s.highestBid * m.minBidIncrementBps) / 10_000;
     }
 
-    /// @notice Highest bidder wins. Every new bid must clear the previous
-    ///         highest bid by at least minBidIncrementBps. The previous
-    ///         high bidder's funds become withdrawable, they are never
-    ///         force-sent (pull-payment pattern).
-    function placeBid(uint256 listingId) external payable listingExists(listingId) nonReentrant {
-        Listing storage l = listings[listingId];
-        require(l.status == Status.Live, "Auction not live");
-        require(block.timestamp < l.endTime, "Auction ended");
-        require(msg.sender != l.creator, "Creator cannot bid");
+    function placeBid(uint256 listingId)
+        external payable exists(listingId) nonReentrant
+    {
+        ListingMeta  storage m = meta[listingId];
+        AuctionState storage s = state[listingId];
+        require(s.status == Status.Live,           "Auction not live");
+        require(block.timestamp < s.endTime,        "Auction ended");
+        require(msg.sender != m.creator,            "Creator cannot bid");
         require(msg.value >= minNextBid(listingId), "Bid too low");
 
-        if (l.highestBidder != address(0)) {
-            pendingReturns[listingId][l.highestBidder] += l.highestBid;
+        if (s.highestBidder != address(0)) {
+            pendingReturns[listingId][s.highestBidder] += s.highestBid;
         }
-
-        l.highestBidder = msg.sender;
-        l.highestBid = msg.value;
+        s.highestBidder = msg.sender;
+        s.highestBid    = msg.value;
 
         emit BidPlaced(listingId, msg.sender, msg.value);
     }
 
-    /// @notice Outbid bidders (or everyone, if the auction is cancelled)
-    ///         withdraw their escrowed ETH here.
-    function withdraw(uint256 listingId) external listingExists(listingId) nonReentrant {
+    function withdraw(uint256 listingId)
+        external exists(listingId) nonReentrant
+    {
         uint256 amount = pendingReturns[listingId][msg.sender];
         require(amount > 0, "Nothing to withdraw");
         pendingReturns[listingId][msg.sender] = 0;
-        (bool ok, ) = payable(msg.sender).call{value: amount}("");
+        (bool ok,) = payable(msg.sender).call{value: amount}("");
         require(ok, "Withdraw failed");
         emit Withdrawn(listingId, msg.sender, amount);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Settlement                                                         */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------ //
+    // Settlement                                                          //
+    // ------------------------------------------------------------------ //
 
-    /// @notice Anyone can trigger settlement once the auction window has
-    ///         closed. If reserve was met, NFT -> highest bidder, funds
-    ///         (minus platform fee) -> creator. If no qualifying bid was
-    ///         placed, the NFT returns to the creator.
-    function settle(uint256 listingId) external listingExists(listingId) nonReentrant {
-        Listing storage l = listings[listingId];
-        require(l.status == Status.Live, "Not live");
-        require(block.timestamp >= l.endTime, "Auction still running");
-        require(!l.settled, "Already settled");
+    function settle(uint256 listingId)
+        external exists(listingId) nonReentrant
+    {
+        ListingMeta  storage m = meta[listingId];
+        AuctionState storage s = state[listingId];
+        require(s.status == Status.Live,      "Not live");
+        require(block.timestamp >= s.endTime, "Still running");
+        require(!s.settled,                   "Already settled");
 
-        l.settled = true;
-        l.status = Status.Ended;
+        s.settled = true;
+        s.status  = Status.Ended;
 
-        if (l.highestBidder == address(0)) {
-            // No bids at all — return the NFT.
-            IERC721(l.nftContract).safeTransferFrom(address(this), l.creator, l.tokenId);
+        if (s.highestBidder == address(0)) {
+            ICreatorCollection(m.collection).safeTransferFrom(
+                address(this), m.creator, m.tokenId
+            );
             emit AuctionSettled(listingId, address(0), 0);
             return;
         }
 
-        IERC721(l.nftContract).safeTransferFrom(address(this), l.highestBidder, l.tokenId);
+        ICreatorCollection(m.collection).safeTransferFrom(
+            address(this), s.highestBidder, m.tokenId
+        );
 
-        uint256 fee = (l.highestBid * platformFeeBps) / 10000;
-        uint256 proceeds = l.highestBid - fee;
+        uint256 fee      = (s.highestBid * platformFeeBps) / 10_000;
+        uint256 proceeds = s.highestBid - fee;
 
-        (bool feeOk, ) = feeRecipient.call{value: fee}("");
-        require(feeOk, "Fee transfer failed");
+        (bool feeOk,)     = feeRecipient.call{value: fee}("");
+        require(feeOk,    "Fee transfer failed");
+        (bool creatorOk,) = m.creator.call{value: proceeds}("");
+        require(creatorOk,"Payout failed");
 
-        (bool creatorOk, ) = l.creator.call{value: proceeds}("");
-        require(creatorOk, "Payout failed");
-
-        emit AuctionSettled(listingId, l.highestBidder, l.highestBid);
+        emit AuctionSettled(listingId, s.highestBidder, s.highestBid);
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Views                                                              */
-    /* ------------------------------------------------------------------ */
+    // ------------------------------------------------------------------ //
+    // Views                                                               //
+    // ------------------------------------------------------------------ //
 
-    function getListing(uint256 listingId) external view returns (Listing memory) {
-        return listings[listingId];
+    /// @notice Convenience composite view — returns both structs together.
+    ///         The frontend ABI calls this as getListing(id).
+    function getListing(uint256 listingId)
+        external view
+        returns (ListingMeta memory m, AuctionState memory s)
+    {
+        m = meta[listingId];
+        s = state[listingId];
     }
 
-    function timeRemaining(uint256 listingId) external view returns (uint256) {
-        Listing storage l = listings[listingId];
-        if (l.status != Status.Live || block.timestamp >= l.endTime) return 0;
-        return l.endTime - block.timestamp;
+    function timeRemaining(uint256 listingId)
+        external view returns (uint256)
+    {
+        AuctionState storage s = state[listingId];
+        if (s.status != Status.Live || block.timestamp >= s.endTime) return 0;
+        return s.endTime - block.timestamp;
+    }
+
+    function collectionOf(address creator)
+        external view returns (address)
+    {
+        return factory.collectionOf(creator);
     }
 }

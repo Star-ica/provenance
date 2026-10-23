@@ -161,9 +161,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--seal);outline-of
 .audit-item .info{flex:1;}.audit-item .info b{font-size:14px;display:block;}
 .audit-item .info span{font-size:12px;color:var(--text-faint);}
 .audit-actions{display:flex;gap:8px;}
+
+/* FOOTER */
 footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
-.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
-.footer-inner p{color:var(--text-faint);font-size:12.5px;margin:0;}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;}
+.footer-left{display:flex;flex-direction:column;gap:10px;}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap;align-items:center;}
+.footer-links a{font-size:13px;color:var(--text-faint);display:flex;align-items:center;gap:6px;transition:color .15s;}
+.footer-links a:hover{color:var(--text-hi);}
+.footer-links .sep{color:var(--line);}
+.footer-right{text-align:right;}
+.footer-right p{color:var(--text-faint);font-size:12px;margin:0;line-height:1.7;}
+.chain-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:11px;color:var(--text-faint);background:var(--ink-panel);border:1px solid var(--line);padding:5px 10px;border-radius:20px;}
+.chain-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--verified);}
+@media(max-width:680px){.footer-inner{flex-direction:column;align-items:flex-start;}.footer-right{text-align:left;}}
+
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:10px;}
 .toast{background:var(--ink-panel-2);border:1px solid var(--line);border-left:3px solid var(--seal);padding:13px 18px;font-size:13.5px;box-shadow:var(--shadow);min-width:240px;animation:slidein .2s ease;}
 @keyframes slidein{from{transform:translateX(12px);opacity:0;}to{transform:translateX(0);opacity:1;}}
@@ -313,7 +325,6 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
             <input type="file" id="f-image" accept="image/*">
           </div>
         </div>
-
         <div class="field">
           <label for="f-title">Title</label>
           <input type="text" id="f-title" placeholder="e.g. Glass Meridian" required>
@@ -375,12 +386,10 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         <div class="summary-row"><span class="k">Audit turnaround</span><span>Typically under 24h</span></div>
         <div class="summary-row"><span class="k">If rejected</span><span>NFT returned, no fee</span></div>
         <div class="summary-row"><span class="k">Wallet</span><span id="summaryWallet">Not connected</span></div>
-
         <div id="uploadProgress" style="display:none;margin-top:14px;">
           <div style="font-size:12.5px;color:var(--text-lo);" id="uploadProgressLabel">Pinning image…</div>
           <div class="progress-bar"><div class="progress-bar-fill" id="uploadProgressFill"></div></div>
         </div>
-
         <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;margin-top:20px;">Submit for audit</button>
         <div class="connect-note">Submitting mints the NFT into escrow and calls <code>listForAudit()</code> on-chain.</div>
       </div>
@@ -402,7 +411,6 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
       <button data-tab="bidder">As bidder</button>
       <button data-tab="auditor">Auditor panel</button>
     </div>
-
     <div id="tab-creator">
       <div class="dash-stats">
         <div class="dash-stat"><b id="cStatListed">0</b><span>Works listed</span></div>
@@ -412,7 +420,6 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
       </div>
       <div id="creatorTableWrap"></div>
     </div>
-
     <div id="tab-bidder" style="display:none;">
       <div class="dash-stats">
         <div class="dash-stat"><b id="bStatActive">0</b><span>Active bids</span></div>
@@ -422,7 +429,6 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
       </div>
       <div id="bidderTableWrap"></div>
     </div>
-
     <div id="tab-auditor" style="display:none;">
       <div class="auditor-panel">
         <h3>Pending review queue</h3>
@@ -436,8 +442,31 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
 
 <footer>
   <div class="wrap footer-inner">
-    <span class="wordmark" style="font-size:16px;"><span class="seal-dot"></span>Provenance</span>
-    <p>Listings, bids and audit status are read live from the deployed contract.</p>
+    <div class="footer-left">
+      <span class="wordmark" style="font-size:16px;"><span class="seal-dot"></span>Provenance</span>
+      <div class="footer-links">
+        <a href="https://botchain.ai" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          BOT Chain
+        </a>
+        <span class="sep">·</span>
+        <a href="https://scan.botchain.ai/address/0x201e3E79FBCeC4E46E480c174d53009e4d2ccb66" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Contract on BOTScan
+        </a>
+        <span class="sep">·</span>
+        <a href="https://scan.botchain.ai" target="_blank" rel="noopener">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          BOTScan Explorer
+        </a>
+      </div>
+    </div>
+    <div class="footer-right">
+      <div class="chain-badge" style="margin-bottom:8px;">
+        <span class="dot"></span>BOT Chain · Chain ID 677
+      </div>
+      <p>Listings, bids and audit decisions<br>are settled on-chain — immutable and public.</p>
+    </div>
   </div>
 </footer>
 
@@ -453,8 +482,8 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
 
 <script>
 /* ===================== HARDCODED CONFIG ===================== */
-const CONTRACT_ADDRESS = '0x201e3E79FBCeC4E46E480c174d53009e4d2ccb66';   // ← AuditedAuction
-const FACTORY_ADDRESS  = '0x4856E3aF1c559f943402e37ae9359C784bfA7009';   // ← NFTFactory
+const CONTRACT_ADDRESS = '0x201e3E79FBCeC4E46E480c174d53009e4d2ccb66';
+const FACTORY_ADDRESS  = '0x4856E3aF1c559f943402e37ae9359C784bfA7009';
 const IPFS_GATEWAY     = 'https://gateway.pinata.cloud/ipfs/';
 const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxZTg0YmJlOS0zOGZkLTQxZDAtYTA3ZS0yOGIyYzQwMjI0MzMiLCJlbWFpbCI6ImplcnlkYW0xNDhAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjU0OTcyMTdkMzM4MGUyMmE5MDZiIiwic2NvcGVkS2V5U2VjcmV0IjoiOTg4NzA4MDc5OTA1NjhiZDgyYmQ4YzEyMjBkYWFmZDk1NzNhMGIxMGJhYzFjNGQ4ZjQ1NzA0OTUwOWEzZDc2NyIsImV4cCI6MTc5ODI3Nzc1OX0.45Q6OvDON7RJE4xcI92p2fMEAVQ1SQYAfcUZkIRdt-I';
 
@@ -610,7 +639,6 @@ async function fetchMeta(tokenURI){
 }
 
 async function mergeListing(c, id){
-  // getListing now returns [ListingMeta m, AuctionState s]
   const [m, s]=await c.getListing(id);
   const status=CHAIN_STATUS_MAP[Number(s.status)]||'pending_audit';
   const ipfsMeta=await fetchMeta(m.tokenURI).catch(()=>null);
@@ -815,7 +843,6 @@ async function placeBid(id,l){
 
 /* ===================== CREATE FORM ===================== */
 let selectedFile=null;
-
 const uploadBox=document.getElementById('uploadBox');
 
 function attachFileHandler(inputEl){
@@ -864,7 +891,6 @@ document.getElementById('createForm').addEventListener('submit',async e=>{
       filename:selectedFile.name,
       onProgress:f=>{ progressFill.style.width=Math.round(f*50)+'%'; }
     });
-
     progressLabel.textContent='Pinning metadata…';
     const metadata={
       name:title, description:desc,
@@ -878,7 +904,6 @@ document.getElementById('createForm').addEventListener('submit',async e=>{
     const metaCID=await pinJSON(metadata,`${title.replace(/\s+/g,'-')}-metadata.json`);
     progressFill.style.width='65%';
     const tokenURI=`ipfs://${metaCID}`;
-
     progressLabel.textContent='Submitting on-chain…';
     submitBtn.textContent='Confirm in wallet…';
     const tx=await contract.listForAudit(
@@ -967,7 +992,7 @@ function renderBidderTab(){
   document.getElementById('bStatWon').textContent=0;
   document.getElementById('bStatEscrow').textContent='0.00';
   if(!walletAddr){wrap.innerHTML=`<div class="empty-state"><h4>No wallet</h4><p>Connect to see your bids.</p></div>`;return;}
-  wrap.innerHTML=`<div class="empty-state"><h4>Open the audit floor to place bids</h4><p>Your active bids appear here once you've placed them. Bid history per piece is available in the piece modal.</p></div>`;
+  wrap.innerHTML=`<div class="empty-state"><h4>Open the audit floor to place bids</h4><p>Your active bids appear here once you've placed them.</p></div>`;
 }
 
 function renderAuditorTab(){

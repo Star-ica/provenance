@@ -590,18 +590,47 @@ async function getReadContract(){
 }
 
 async function connectWallet(){
-  if(!window.ethereum){ toast('No wallet extension found — install MetaMask.'); return; }
+  if(!window.ethereum){ toast('No wallet extension found.'); return; }
   try{
-    provider=new ethers.BrowserProvider(window.ethereum);
-    const accts=await provider.send('eth_requestAccounts',[]);
-    walletAddr=accts[0];
-    signer=await provider.getSigner();
-    contract=new ethers.Contract(CONTRACT_ADDRESS,MARKETPLACE_ABI,signer);
+    provider = new ethers.BrowserProvider(window.ethereum);
+    const accts = await provider.send('eth_requestAccounts', []);
+
+    // Check + switch to BOT Chain (677 = 0x2A5)
+    const network = await provider.getNetwork();
+    if(network.chainId !== 677n){
+      try{
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: '0x2A5' }],
+        });
+      } catch(switchErr){
+        // Chain not in wallet yet — add it
+        if(switchErr.code === 4902){
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x2A5',
+              chainName: 'BOT Chain',
+              nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
+              rpcUrls: ['https://rpc.botchain.ai'],
+              blockExplorerUrls: ['https://scan.botchain.ai'],
+            }],
+          });
+        } else {
+          throw switchErr;
+        }
+      }
+      // Re-init provider after switch
+      provider = new ethers.BrowserProvider(window.ethereum);
+    }
+
+    walletAddr = (await provider.send('eth_requestAccounts', []))[0];
+    signer = await provider.getSigner();
+    contract = new ethers.Contract(CONTRACT_ADDRESS, MARKETPLACE_ABI, signer);
     toast('Wallet connected.');
-  }catch(e){ toast(parseErr(e)); }
+  } catch(e){ toast(parseErr(e)); }
   renderWallet(); renderAll(); refreshChainListings();
 }
-
 function disconnectWallet(){ walletAddr=null; signer=null; contract=null; renderWallet(); renderAll(); }
 
 function renderWallet(){

@@ -178,6 +178,7 @@ footer{border-top:1px solid var(--line);padding:44px 0;margin-top:60px;}
 
 .toast-wrap{position:fixed;bottom:24px;right:24px;z-index:100;display:flex;flex-direction:column;gap:10px;}
 .toast{background:var(--ink-panel-2);border:1px solid var(--line);border-left:3px solid var(--seal);padding:13px 18px;font-size:13.5px;box-shadow:var(--shadow);min-width:240px;animation:slidein .2s ease;}
+.toast.toast-error{border-left-color:var(--rejected);}
 @keyframes slidein{from{transform:translateX(12px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 .page{display:none;}.page.active{display:block;}
 .filter-bar{display:flex;gap:8px;margin-bottom:32px;flex-wrap:wrap;}
@@ -352,7 +353,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         </div>
         <div class="row2">
           <div class="field">
-            <label for="f-reserve">Reserve price (ETH)</label>
+            <label for="f-reserve">Reserve price (BOT)</label>
             <input type="number" id="f-reserve" min="0.001" step="0.001" placeholder="0.50" required>
           </div>
           <div class="field">
@@ -385,6 +386,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         <div class="summary-row"><span class="k">Platform fee</span><span>2.5% of final bid</span></div>
         <div class="summary-row"><span class="k">Audit turnaround</span><span>Typically under 24h</span></div>
         <div class="summary-row"><span class="k">If rejected</span><span>NFT returned, no fee</span></div>
+        <div class="summary-row"><span class="k">Network</span><span id="summaryNetwork">—</span></div>
         <div class="summary-row"><span class="k">Wallet</span><span id="summaryWallet">Not connected</span></div>
         <div id="uploadProgress" style="display:none;margin-top:14px;">
           <div style="font-size:12.5px;color:var(--text-lo);" id="uploadProgressLabel">Pinning image…</div>
@@ -450,7 +452,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
           BOT Chain
         </a>
         <span class="sep">·</span>
-        <a href="https://scan.botchain.ai/address/0x201e3E79FBCeC4E46E480c174d53009e4d2ccb66" target="_blank" rel="noopener">
+        <a href="https://scan.botchain.ai/address/0xD166c702B8E3da89a88ed0bA0869871874E0780d" target="_blank" rel="noopener">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           Contract on BOTScan
         </a>
@@ -463,7 +465,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
     </div>
     <div class="footer-right">
       <div class="chain-badge" style="margin-bottom:8px;">
-        <span class="dot"></span>BOT Chain · Chain ID 677
+        <span class="dot"></span>BOT Chain Mainnet · Chain ID 677
       </div>
       <p>Listings, bids and audit decisions<br>are settled on-chain — immutable and public.</p>
     </div>
@@ -482,27 +484,947 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
 
 <script>
 /* ===================== HARDCODED CONFIG ===================== */
-const CONTRACT_ADDRESS = '0x201e3E79FBCeC4E46E480c174d53009e4d2ccb66';
-const FACTORY_ADDRESS  = '0x4856E3aF1c559f943402e37ae9359C784bfA7009';
+const CONTRACT_ADDRESS = '0xD166c702B8E3da89a88ed0bA0869871874E0780d';
+const FACTORY_ADDRESS  = '0xF51894B9EeEb85b2C1193D9C328DE26B7Ffc46B1';
 const IPFS_GATEWAY     = 'https://gateway.pinata.cloud/ipfs/';
 const PINATA_JWT       = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIxZTg0YmJlOS0zOGZkLTQxZDAtYTA3ZS0yOGIyYzQwMjI0MzMiLCJlbWFpbCI6ImplcnlkYW0xNDhAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjU0OTcyMTdkMzM4MGUyMmE5MDZiIiwic2NvcGVkS2V5U2VjcmV0IjoiOTg4NzA4MDc5OTA1NjhiZDgyYmQ4YzEyMjBkYWFmZDk1NzNhMGIxMGJhYzFjNGQ4ZjQ1NzA0OTUwOWEzZDc2NyIsImV4cCI6MTc5ODI3Nzc1OX0.45Q6OvDON7RJE4xcI92p2fMEAVQ1SQYAfcUZkIRdt-I';
 
+/* BOT Chain network params */
+const BOT_CHAIN_ID     = 677n;
+const BOT_CHAIN_HEX    = '0x2a5';
+const BOT_CHAIN_PARAMS = {
+  chainId: BOT_CHAIN_HEX,
+  chainName: 'BOT Chain ',
+  nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
+  rpcUrls: ['https://rpc.botchain.ai'],
+  blockExplorerUrls: ['https://scan.botchain.ai'],
+};
+
 /* ---- ABI ---- */
 const MARKETPLACE_ABI = [
-  {"inputs":[{"internalType":"string","name":"tokenURI_","type":"string"},{"internalType":"uint256","name":"reservePrice","type":"uint256"},{"internalType":"uint256","name":"auctionDurationSecs","type":"uint256"},{"internalType":"string","name":"collectionName","type":"string"},{"internalType":"string","name":"collectionSymbol","type":"string"}],"name":"listForAudit","outputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"},{"internalType":"bool","name":"approve","type":"bool"},{"internalType":"string","name":"note","type":"string"}],"name":"decideAudit","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"beginAudit","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"startAuction","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"cancelBeforeAuction","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"placeBid","outputs":[],"stateMutability":"payable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"settle","outputs":[],"stateMutability":"nonpayable","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"getListing","outputs":[{"components":[{"internalType":"address","name":"collection","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"address payable","name":"creator","type":"address"},{"internalType":"uint256","name":"reservePrice","type":"uint256"},{"internalType":"uint256","name":"minBidIncrementBps","type":"uint256"},{"internalType":"uint256","name":"auctionDuration","type":"uint256"},{"internalType":"string","name":"tokenURI","type":"string"}],"internalType":"struct AuditedAuction.ListingMeta","name":"m","type":"tuple"},{"components":[{"internalType":"uint8","name":"status","type":"uint8"},{"internalType":"address","name":"auditor","type":"address"},{"internalType":"string","name":"auditNote","type":"string"},{"internalType":"uint256","name":"startTime","type":"uint256"},{"internalType":"uint256","name":"endTime","type":"uint256"},{"internalType":"address","name":"highestBidder","type":"address"},{"internalType":"uint256","name":"highestBid","type":"uint256"},{"internalType":"bool","name":"settled","type":"bool"}],"internalType":"struct AuditedAuction.AuctionState","name":"s","type":"tuple"}],"stateMutability":"view","type":"function"},
-  {"inputs":[],"name":"nextListingId","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-  {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"auditors","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-  {"inputs":[{"internalType":"uint256","name":"listingId","type":"uint256"}],"name":"minNextBid","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-  {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"listingId","type":"uint256"},{"indexed":true,"internalType":"address","name":"bidder","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"BidPlaced","type":"event"},
-  {"inputs":[{"internalType":"address","name":"creator","type":"address"}],"name":"collectionOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "_feeRecipient",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_factory",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionCancelled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "winner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionSettled",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      }
+    ],
+    "name": "AuctionStarted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "auditor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "approved",
+        "type": "bool"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "note",
+        "type": "string"
+      }
+    ],
+    "name": "AuditDecided",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "auditor",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "allowed",
+        "type": "bool"
+      }
+    ],
+    "name": "AuditorUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "beginAudit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "BidPlaced",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "cancelBeforeAuction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "approve",
+        "type": "bool"
+      },
+      {
+        "internalType": "string",
+        "name": "note",
+        "type": "string"
+      }
+    ],
+    "name": "decideAudit",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "collection",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "tokenURI",
+        "type": "string"
+      }
+    ],
+    "name": "Listed",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "tokenURI",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "collectionName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "collectionSymbol",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct AuditedAuction.ListingParams",
+        "name": "p",
+        "type": "tuple"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "auctionDurationSecs",
+        "type": "uint256"
+      }
+    ],
+    "name": "listForAudit",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "name": "onERC721Received",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "placeBid",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "bool",
+        "name": "allowed",
+        "type": "bool"
+      }
+    ],
+    "name": "setAuditor",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address payable",
+        "name": "recipient",
+        "type": "address"
+      }
+    ],
+    "name": "setFeeRecipient",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "bps",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPlatformFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "settle",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "startAuction",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdraw",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "bidder",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Withdrawn",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "auditors",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "creator",
+        "type": "address"
+      }
+    ],
+    "name": "collectionOf",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_MIN_INCREMENT_BPS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "factory",
+    "outputs": [
+      {
+        "internalType": "contract INFTFactory",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "feeRecipient",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getListing",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "collection",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "tokenId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address payable",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reservePrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minBidIncrementBps",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "auctionDuration",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "tokenURI",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct AuditedAuction.ListingMeta",
+        "name": "m",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "enum AuditedAuction.Status",
+            "name": "status",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "auditor",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "auditNote",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "startTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "endTime",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "highestBidder",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "highestBid",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "settled",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct AuditedAuction.AuctionState",
+        "name": "s",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MAX_AUCTION_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "meta",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "collection",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address payable",
+        "name": "creator",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "reservePrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "minBidIncrementBps",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "auctionDuration",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "tokenURI",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "MIN_AUCTION_DURATION",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "minNextBid",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "nextListingId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "pendingReturns",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "platformFeeBps",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "state",
+    "outputs": [
+      {
+        "internalType": "enum AuditedAuction.Status",
+        "name": "status",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "auditor",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "auditNote",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "startTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "endTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "highestBidder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "highestBid",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "settled",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+      }
+    ],
+    "name": "timeRemaining",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
 
 /* ===================== HELPERS ===================== */
@@ -536,12 +1458,46 @@ function placeholderSvg(seed){
 function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}return h;}
 
 /* ===================== TOASTS ===================== */
-function toast(msg){
+function toast(msg, isError=false){
   const wrap=document.getElementById('toastWrap');
-  const el=document.createElement('div'); el.className='toast'; el.textContent=msg;
-  wrap.appendChild(el); setTimeout(()=>el.remove(),4000);
+  const el=document.createElement('div');
+  el.className='toast'+(isError?' toast-error':'');
+  el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),4000);
 }
+(async () => {
+  try {
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const network = await provider.getNetwork();
+    console.log("chainId", network.chainId.toString());
 
+    const signer = await provider.getSigner();
+    console.log("signer", await signer.getAddress());
+    console.log("CONTRACT_ADDRESS", CONTRACT_ADDRESS);
+
+    const c = new ethers.Contract(CONTRACT_ADDRESS, MARKETPLACE_ABI, signer);
+
+    // quick read — must return fast
+    const n = await c.nextListingId();
+    console.log("nextListingId", n.toString());
+
+    const p = {
+      tokenURI: "ipfs://bafytest",
+      collectionName: "Debug",
+      collectionSymbol: "DBG"
+    };
+
+    console.log("estimating gas...");
+    const gas = await Promise.race([
+      c.listForAudit.estimateGas(p, ethers.parseEther("0.01"), 3600n),
+      new Promise((_, rej) => setTimeout(() => rej(new Error("estimateGas timeout 15s")), 15000))
+    ]);
+    console.log("gas OK", gas.toString());
+  } catch (e) {
+    console.error("FAILED:", e.shortMessage || e.reason || e.message, e);
+  }
+})();
 /* ===================== IPFS UPLOAD ===================== */
 function pinFile(blob, opts={}){
   const {filename='upload.bin', onProgress}=opts;
@@ -575,6 +1531,29 @@ function pinJSON(obj, filename='metadata.json'){
   return pinFile(blob,{filename});
 }
 
+/* ===================== CHAIN SWITCH ===================== */
+async function ensureBotChain(){
+  if(!window.ethereum) throw new Error('No wallet extension found — install MetaMask.');
+  const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+  if(currentChainId === BOT_CHAIN_HEX) return; // already on BOT Chain
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: BOT_CHAIN_HEX }],
+    });
+  } catch(switchErr) {
+    // 4902 = chain not added to wallet yet
+    if(switchErr.code === 4902 || switchErr?.data?.originalError?.code === 4902) {
+      await window.ethereum.request({
+        method: 'wallet_addEthereumChain',
+        params: [BOT_CHAIN_PARAMS],
+      });
+    } else {
+      throw switchErr;
+    }
+  }
+}
+
 /* ===================== WALLET ===================== */
 let walletAddr=null, provider=null, signer=null, contract=null;
 
@@ -590,47 +1569,30 @@ async function getReadContract(){
 }
 
 async function connectWallet(){
-  if(!window.ethereum){ toast('No wallet extension found.'); return; }
+  if(!window.ethereum){ toast('No wallet extension found — install MetaMask.', true); return; }
   try{
+    // 1. Request accounts first so MetaMask opens
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    // 2. Switch to BOT Chain (adds it if not present)
+    toast('Switching to BOT Chain…');
+    await ensureBotChain();
+
+    // 3. Re-init provider after potential chain switch
     provider = new ethers.BrowserProvider(window.ethereum);
     const accts = await provider.send('eth_requestAccounts', []);
-
-    // Check + switch to BOT Chain (677 = 0x2A5)
-    const network = await provider.getNetwork();
-    if(network.chainId !== 677n){
-      try{
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x2A5' }],
-        });
-      } catch(switchErr){
-        // Chain not in wallet yet — add it
-        if(switchErr.code === 4902){
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0x2A5',
-              chainName: 'BOT Chain',
-              nativeCurrency: { name: 'BOT', symbol: 'BOT', decimals: 18 },
-              rpcUrls: ['https://rpc.botchain.ai'],
-              blockExplorerUrls: ['https://scan.botchain.ai'],
-            }],
-          });
-        } else {
-          throw switchErr;
-        }
-      }
-      // Re-init provider after switch
-      provider = new ethers.BrowserProvider(window.ethereum);
-    }
-
-    walletAddr = (await provider.send('eth_requestAccounts', []))[0];
+    walletAddr = accts[0];
     signer = await provider.getSigner();
     contract = new ethers.Contract(CONTRACT_ADDRESS, MARKETPLACE_ABI, signer);
-    toast('Wallet connected.');
-  } catch(e){ toast(parseErr(e)); }
+
+    const network = await provider.getNetwork();
+    toast(`Connected — BOT Chain (${network.chainId})`);
+  } catch(e){
+    toast(parseErr(e), true);
+  }
   renderWallet(); renderAll(); refreshChainListings();
 }
+
 function disconnectWallet(){ walletAddr=null; signer=null; contract=null; renderWallet(); renderAll(); }
 
 function renderWallet(){
@@ -644,10 +1606,17 @@ function renderWallet(){
   }
   const sw=document.getElementById('summaryWallet');
   if(sw) sw.textContent=walletAddr?shortAddr(walletAddr):'Not connected';
+  const sn=document.getElementById('summaryNetwork');
+  if(sn) sn.textContent=walletAddr?'BOT Chain Mainnet (677)':'—';
 }
 
 if(window.ethereum){
-  window.ethereum.on?.('accountsChanged',()=>connectWallet());
+  window.ethereum.on?.('accountsChanged', async (accounts)=>{
+    if(accounts.length===0){ disconnectWallet(); return; }
+    walletAddr=accounts[0];
+    if(provider){ signer=await provider.getSigner(); contract=new ethers.Contract(CONTRACT_ADDRESS,MARKETPLACE_ABI,signer); }
+    renderWallet(); renderAll();
+  });
   window.ethereum.on?.('chainChanged',()=>location.reload());
 }
 
@@ -718,7 +1687,7 @@ async function refreshChainListings(){
     const raw=await Promise.all(Array.from({length:count},(_,i)=>mergeListing(c,i).catch(()=>null)));
     listings=raw.filter(Boolean).reverse();
     renderAll();
-  }catch(e){ toast('Could not read listings: '+parseErr(e)); }
+  }catch(e){ toast('Could not read listings: '+parseErr(e), true); }
   finally{ chainRefreshInFlight=false; if(loadEl) loadEl.textContent=''; }
 }
 
@@ -789,7 +1758,7 @@ async function openPiece(id){
   if(st==='live'){
     actionHtml=`
       <div class="field">
-        <label for="bidAmount">Your bid (ETH) — minimum ${minNext}</label>
+        <label for="bidAmount">Your bid (BOT) — minimum ${minNext}</label>
         <input type="number" id="bidAmount" step="0.001" min="${minNext}" placeholder="${minNext}">
       </div>
       <button class="btn btn-primary" style="width:100%;" id="placeBidBtn">Place bid</button>
@@ -822,10 +1791,10 @@ async function openPiece(id){
     <p style="font-size:14px;color:var(--text-lo);line-height:1.6;">${l.description}</p>
     <div class="summary-row"><span class="k">Collection</span><span><code>${shortAddr(l.collection)}</code></span></div>
     <div class="summary-row"><span class="k">Token ID</span><span>#${l.tokenId}</span></div>
-    <div class="summary-row"><span class="k">Reserve</span><span>${fmtEth(l.reserve)} ETH</span></div>
-    ${st==='live'?`<div class="summary-row"><span class="k">Current bid</span><span>${fmtEth(l.currentBid||l.reserve)} ETH</span></div>
+    <div class="summary-row"><span class="k">Reserve</span><span>${fmtEth(l.reserve)} BOT</span></div>
+    ${st==='live'?`<div class="summary-row"><span class="k">Current bid</span><span>${fmtEth(l.currentBid||l.reserve)} BOT</span></div>
     <div class="summary-row"><span class="k">Time left</span><span>${timeLeft(l)}</span></div>`:''}
-    ${bids.length?`<div class="bid-history">${bids.slice().reverse().map(b=>`<div class="bid-row"><span>${b.bidder}</span><span>${fmtEth(b.amount)} ETH</span></div>`).join('')}</div>`:''}
+    ${bids.length?`<div class="bid-history">${bids.slice().reverse().map(b=>`<div class="bid-row"><span>${b.bidder}</span><span>${fmtEth(b.amount)} BOT</span></div>`).join('')}</div>`:''}
     <div style="margin-top:16px;">${actionHtml}</div>`;
 
   document.getElementById('bidOverlay').classList.add('open');
@@ -842,7 +1811,7 @@ async function settleAuction(id){
     toast('Auction settled.');
     document.getElementById('bidOverlay').classList.remove('open');
     refreshChainListings();
-  }catch(e){toast(parseErr(e));}
+  }catch(e){toast(parseErr(e),true);}
 }
 
 document.getElementById('closeModal').onclick=()=>document.getElementById('bidOverlay').classList.remove('open');
@@ -850,11 +1819,11 @@ document.getElementById('bidOverlay').addEventListener('click',e=>{if(e.target.i
 
 async function placeBid(id,l){
   if(!walletAddr){toast('Connect a wallet first.');await connectWallet();return;}
-  if(!contract){toast('Contract not ready — reconnect wallet.');return;}
+  if(!contract){toast('Contract not ready — reconnect wallet.',true);return;}
   const input=document.getElementById('bidAmount');
   const amt=parseFloat(input.value);
   const minNext=(l.currentBid||l.reserve)*1.05;
-  if(!amt||amt<minNext){toast(`Bid must be at least ${fmtEth(minNext)} ETH.`);return;}
+  if(!amt||amt<minNext){toast(`Bid must be at least ${fmtEth(minNext)} ETH.`,true);return;}
   const btn=document.getElementById('placeBidBtn');
   if(btn){btn.disabled=true;btn.textContent='Confirm in wallet…';}
   try{
@@ -865,7 +1834,7 @@ async function placeBid(id,l){
     document.getElementById('bidOverlay').classList.remove('open');
     refreshChainListings();
   }catch(e){
-    toast(parseErr(e));
+    toast(parseErr(e),true);
     if(btn){btn.disabled=false;btn.textContent='Place bid';}
   }
 }
@@ -889,11 +1858,34 @@ function attachFileHandler(inputEl){
 }
 attachFileHandler(document.getElementById('f-image'));
 
-document.getElementById('createForm').addEventListener('submit',async e=>{
+document.getElementById('createForm').addEventListener('submit', async e=>{
   e.preventDefault();
-  if(!walletAddr){toast('Connect a wallet to list a work.');await connectWallet();if(!walletAddr)return;}
-  if(!contract){toast('Contract not ready — reconnect wallet.');return;}
-  if(!selectedFile){toast('Please select an image file.');return;}
+
+  if(!walletAddr){
+    toast('Connect a wallet to list a work.');
+    await connectWallet();
+    if(!walletAddr) return;
+  }
+
+  // ---- CHAIN CHECK before doing anything ----
+  try {
+    const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+    if(currentChainId !== BOT_CHAIN_HEX){
+      toast('Wrong network — switching to BOT Chain…');
+      await ensureBotChain();
+      // Re-init signer after switch
+      provider = new ethers.BrowserProvider(window.ethereum);
+      signer = await provider.getSigner();
+      contract = new ethers.Contract(CONTRACT_ADDRESS, MARKETPLACE_ABI, signer);
+      renderWallet();
+    }
+  } catch(chainErr) {
+    toast(parseErr(chainErr), true);
+    return;
+  }
+
+  if(!contract){ toast('Contract not ready — reconnect wallet.', true); return; }
+  if(!selectedFile){ toast('Please select an image file.', true); return; }
 
   const title      = document.getElementById('f-title').value.trim();
   const desc       = document.getElementById('f-desc').value.trim();
@@ -904,8 +1896,8 @@ document.getElementById('createForm').addEventListener('submit',async e=>{
   const colName    = document.getElementById('f-colname').value.trim();
   const colSymbol  = document.getElementById('f-colsymbol').value.trim().toUpperCase();
 
-  if(!title||!desc||!reserve){toast('Fill in title, description and reserve price.');return;}
-  if(!colName||!colSymbol){toast('Fill in collection name and symbol.');return;}
+  if(!title||!desc||!reserve){ toast('Fill in title, description and reserve price.',true); return; }
+  if(!colName||!colSymbol){ toast('Fill in collection name and symbol.',true); return; }
 
   const submitBtn      = document.getElementById('submitBtn');
   const progressWrap   = document.getElementById('uploadProgress');
@@ -935,13 +1927,26 @@ document.getElementById('createForm').addEventListener('submit',async e=>{
     const tokenURI=`ipfs://${metaCID}`;
     progressLabel.textContent='Submitting on-chain…';
     submitBtn.textContent='Confirm in wallet…';
-    const tx=await contract.listForAudit(
+
+    const params = {
       tokenURI,
-      ethers.parseEther(String(reserve)),
-      BigInt(duration),
-      colName,
-      colSymbol
-    );
+      collectionName: colName,
+      collectionSymbol: colSymbol
+    };
+    const reserveWei = ethers.parseEther(String(reserve));
+    const durationBn = BigInt(duration);
+
+    // Fail fast if estimate hangs
+    const gas = await Promise.race([
+      contract.listForAudit.estimateGas(params, reserveWei, durationBn),
+      new Promise((_, rej) =>
+        setTimeout(() => rej(new Error('Gas estimate timed out — check contract/network')), 20000)
+      )
+    ]);
+
+    const tx = await contract.listForAudit(params, reserveWei, durationBn, {
+      gasLimit: (gas * 120n) / 100n
+    });
     progressFill.style.width='85%';
     toast('Transaction sent — waiting for confirmation…');
     await tx.wait();
@@ -951,7 +1956,7 @@ document.getElementById('createForm').addEventListener('submit',async e=>{
     location.hash='#/dashboard';
     refreshChainListings();
   }catch(err){
-    toast(parseErr(err));
+    toast(parseErr(err), true);
   }finally{
     submitBtn.disabled=false; submitBtn.textContent='Submit for audit';
     progressWrap.style.display='none'; progressFill.style.width='0%';
@@ -1010,7 +2015,7 @@ function renderCreatorTab(){
       const tx=await contract.startAuction(BigInt(b.dataset.start));
       toast('Starting auction…'); await tx.wait(); toast('Auction started.');
       refreshChainListings();
-    }catch(err){toast(parseErr(err));}
+    }catch(err){toast(parseErr(err),true);}
   });
 }
 
@@ -1049,7 +2054,7 @@ async function decideAuditOnChain(id,approve,note){
     toast('Recording audit decision…'); await tx.wait();
     toast(`"${l?.title||'Listing'}" ${approve?'verified':'rejected'} on-chain.`);
     refreshChainListings();
-  }catch(err){toast(parseErr(err));}
+  }catch(err){toast(parseErr(err),true);}
 }
 
 /* ===================== THEME ===================== */
@@ -1090,4 +2095,4 @@ renderWallet();
 refreshChainListings();
 </script>
 </body>
-</html>
+</html> 

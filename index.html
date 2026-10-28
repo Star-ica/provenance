@@ -226,7 +226,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         <div class="hero-stats">
           <div class="stat"><b id="statVerified">—</b><span>Works verified</span></div>
           <div class="stat"><b id="statLive">—</b><span>Live auctions</span></div>
-          <div class="stat"><b id="statVolume">—</b><span>ETH settled</span></div>
+          <div class="stat"><b id="statVolume">—</b><span>BOT settled</span></div>
         </div>
       </div>
       <div>
@@ -239,7 +239,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
           <div class="cert-row"><span class="k">Token ID</span><span>#0 · ProvenanceNFT</span></div>
           <div class="cert-row"><span class="k">Auditor</span><span>0x7e…3f1a</span></div>
           <div class="cert-row"><span class="k">Result</span><span>Authentic — original mint</span></div>
-          <div class="cert-row"><span class="k">Reserve</span><span>0.85 ETH</span></div>
+          <div class="cert-row"><span class="k">Reserve</span><span>0.85 BOT</span></div>
           <div class="cert-hash">ipfs://bafybe…c02b — metadata immutable once minted</div>
         </div>
       </div>
@@ -418,7 +418,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         <div class="dash-stat"><b id="cStatListed">0</b><span>Works listed</span></div>
         <div class="dash-stat"><b id="cStatVerified">0</b><span>Verified</span></div>
         <div class="dash-stat"><b id="cStatLive">0</b><span>Live now</span></div>
-        <div class="dash-stat"><b id="cStatEarned">0.00</b><span>ETH earned (settled)</span></div>
+        <div class="dash-stat"><b id="cStatEarned">0.00</b><span>BOT earned (settled)</span></div>
       </div>
       <div id="creatorTableWrap"></div>
     </div>
@@ -427,7 +427,7 @@ code{font-family:var(--font-mono);background:var(--ink-panel-2);padding:1px 5px;
         <div class="dash-stat"><b id="bStatActive">0</b><span>Active bids</span></div>
         <div class="dash-stat"><b id="bStatWinning">0</b><span>Currently winning</span></div>
         <div class="dash-stat"><b id="bStatWon">0</b><span>Auctions won</span></div>
-        <div class="dash-stat"><b id="bStatEscrow">0.00</b><span>ETH in escrow</span></div>
+        <div class="dash-stat"><b id="bStatEscrow">0.00</b><span>BOT in escrow</span></div>
       </div>
       <div id="bidderTableWrap"></div>
     </div>
@@ -1769,7 +1769,7 @@ async function openPiece(id){
     actionHtml=`<div class="empty-state"><h4>Verified</h4><p>The lister can open bidding from their dashboard.</p></div>`;
   }else if(st==='ended'){
     actionHtml=`<div class="summary-row"><span class="k">Won by</span><span>${l.currentBidder||'—'}</span></div>
-      <div class="summary-row"><span class="k">Final price</span><span>${fmtEth(l.currentBid)} ETH</span></div>`;
+      <div class="summary-row"><span class="k">Final price</span><span>${fmtEth(l.currentBid)} BOT</span></div>`;
     if(!l.settled){
       actionHtml+=`<button class="btn btn-primary" style="width:100%;margin-top:14px;" id="settleBtn">Settle on-chain</button>
         <div class="connect-note">Anyone can trigger settlement to release the NFT and funds.</div>`;
@@ -1823,14 +1823,14 @@ async function placeBid(id,l){
   const input=document.getElementById('bidAmount');
   const amt=parseFloat(input.value);
   const minNext=(l.currentBid||l.reserve)*1.05;
-  if(!amt||amt<minNext){toast(`Bid must be at least ${fmtEth(minNext)} ETH.`,true);return;}
+  if(!amt||amt<minNext){toast(`Bid must be at least ${fmtEth(minNext)} BOT.`,true);return;}
   const btn=document.getElementById('placeBidBtn');
   if(btn){btn.disabled=true;btn.textContent='Confirm in wallet…';}
   try{
     const tx=await contract.placeBid(BigInt(id),{value:ethers.parseEther(String(amt))});
     toast('Bid sent — waiting for confirmation…');
     await tx.wait();
-    toast(`Bid of ${fmtEth(amt)} ETH confirmed.`);
+    toast(`Bid of ${fmtEth(amt)} BOT confirmed.`);
     document.getElementById('bidOverlay').classList.remove('open');
     refreshChainListings();
   }catch(e){
@@ -2003,8 +2003,8 @@ function renderCreatorTab(){
       <td>${l.title}</td>
       <td><code style="font-size:11px;">${shortAddr(l.collection)}</code></td>
       <td><span class="pill ${STATUS_CLASS[st]}"><span class="dot"></span>${STATUS_LABEL[st]}</span></td>
-      <td>${fmtEth(l.reserve)} ETH</td>
-      <td>${l.currentBid?fmtEth(l.currentBid)+' ETH':'—'}</td>
+      <td>${fmtEth(l.reserve)} BOT</td>
+      <td>${l.currentBid?fmtEth(l.currentBid)+' BOT':'—'}</td>
       <td>${st==='verified'?`<button class="btn btn-small" data-start="${l.id}">Start auction</button>`:`<button class="btn btn-small" data-view="${l.id}">View</button>`}</td>
     </tr>`;}).join('')}
   </tbody></table>`;
